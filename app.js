@@ -219,7 +219,16 @@ if(quickNetworkBtn){
 }
 
 
-  // Navigate to Analytics page
+  
+
+  // Navigate to Wallet page
+  const walletBtn = qs('#walletBtn');
+  if(walletBtn){
+    walletBtn.addEventListener('click', () => {
+      window.location.href = './wallet.html';
+    });
+  }
+// Navigate to Analytics page
   const analyticsBtn = qs('#analyticsBtn');
   if(analyticsBtn){
     analyticsBtn.addEventListener('click', () => {
