@@ -1331,3 +1331,18 @@ body{
   color: var(--muted2);
   line-height: 1.5;
 }
+
+
+/* Solid black background (used for Analytics page) */
+body.lux-solid-bg{
+  background: #000 !important;
+}
+
+
+/* Analytics page tweaks (reduce top spacing) */
+.lux-analytics-page .lux-page-header{
+  padding: 10px 0 6px;
+}
+.lux-analytics-page .lux-page-top{
+  margin-bottom: 8px;
+}
