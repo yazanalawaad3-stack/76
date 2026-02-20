@@ -1346,3 +1346,9 @@ body.lux-solid-bg{
 .lux-analytics-page .lux-page-top{
   margin-bottom: 8px;
 }
+
+/* Analytics page: remove the global top padding (used on home for the top gear)
+   and replace it with a small safe-area aware padding so the back button sits at the top. */
+.lux-analytics-page .lux-app{
+  padding-top: calc(env(safe-area-inset-top) + 10px);
+}
