@@ -81,5 +81,19 @@
     });
   }
 
-  window.addEventListener('load', renderQR);
+  function bootQR(){
+    // Try immediately; if QR library isn't ready yet, retry a few times.
+    let tries = 0;
+    const tick = () => {
+      tries += 1;
+      renderQR();
+      if((!window.QRCode || !window.QRCode.toCanvas) && tries < 10){
+        setTimeout(tick, 120);
+      }
+    };
+    tick();
+  }
+
+  document.addEventListener('DOMContentLoaded', bootQR);
+  window.addEventListener('load', bootQR);
 })();

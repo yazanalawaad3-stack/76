@@ -1355,6 +1355,17 @@ body.lux-solid-bg{
 
 
 /* Wallet page */
+/* Wallet page: remove home top padding so header sits at the very top (safe-area handled by header) */
+.lux-wallet-page .lux-app{
+  padding-top: 0 !important;
+  padding-bottom: 28px !important; /* no bottom dock here */
+}
+.lux-wallet-page .lux-main{
+  padding-top: 0 !important;
+}
+.lux-wallet-page .lux-head-tight{
+  margin-bottom: 10px;
+}
 
 .lux-solid-bg{
   background:#000 !important;
