@@ -193,6 +193,9 @@ toast(label);
       if(action === 'guide'){
         window.location.href = './guide.html';
       }
+      if(action === 'language'){
+        window.location.href = './language.html';
+      }
       closeSettingsMenu();
     });
   }

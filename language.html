@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Language Settings</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap (layout utilities) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="./styles.css" />
+
+  <style>
+    /* Page-specific polish (matches About/Guide style) */
+    .lux-page{ padding-top: 6px; }
+    .lux-card .lux-card-desc{ line-height: 1.55; }
+
+    .lang-search{ margin-top: 12px; }
+    .lang-search input{
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      color: #fff;
+      outline: none;
+    }
+    .lang-search input::placeholder{ color: rgba(255,255,255,.45); }
+
+    .lang-list{
+      margin-top: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255,255,255,.03);
+      max-height: 54vh;
+      overflow-y: auto;
+    }
+    .lang-row{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      cursor: pointer;
+      user-select: none;
+    }
+    .lang-row:last-child{ border-bottom: none; }
+    .lang-row:hover{ background: rgba(255,255,255,.03); }
+
+    .lang-ic{
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex: 0 0 auto;
+    }
+    .lang-tx{ flex: 1 1 auto; min-width: 0; }
+    .lang-nm{ font-weight: 650; color: #fff; font-size: 14px; }
+    .lang-ds{ margin-top: 2px; color: rgba(255,255,255,.62); font-size: 12px; }
+
+    .lang-row input{ display: none; }
+    .lang-radio{
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+    .lang-radio::after{
+      content:"";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: transparent;
+    }
+    .lang-row input:checked + .lang-radio{
+      border-color: rgba(255,255,255,.75);
+    }
+    .lang-row input:checked + .lang-radio::after{
+      background: rgba(255,255,255,.75);
+    }
+
+    .lang-actions{
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .lang-actions .lux-btn{ width: 100%; }
+
+    /* Mini toast */
+    .lux-mini-toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.75);
+      border: 1px solid rgba(255,255,255,.10);
+      color:#fff;
+      padding: 10px 14px;
+      border-radius: 999px;
+      box-shadow: 0 16px 40px rgba(0,0,0,.55);
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .18s ease;
+      z-index: 9999;
+      font-size: 13px;
+      backdrop-filter: blur(10px);
+      max-width: calc(100vw - 28px);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lux-mini-toast.show{ opacity: 1; }
+  </style>
+</head>
+
+<body class="lux-body lux-solid-bg">
+  <div class="lux-app lux-page lux-app--page">
+
+    <!-- Header -->
+    <header class="lux-head lux-head-tight" aria-label="Language Settings header">
+      <a class="lux-back" href="./index000.html" aria-label="Back">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      </a>
+
+      <div class="lux-head-title">
+        <div class="lux-h1">Language Settings</div>
+        <div class="lux-h2">Placeholder content (edit later)</div>
+      </div>
+
+      <!-- Right spacer keeps the title visually centered (no icon here) -->
+      <span class="lux-head-spacer" aria-hidden="true"></span>
+    </header>
+
+    <main class="lux-main">
+      <div class="container px-3">
+
+        <section class="lux-card lux-card-wide" aria-label="Language settings content">
+          <div class="lux-card-top">
+            <div class="lux-card-title">Choose your language</div>
+            <span class="lux-badge">beta</span>
+          </div>
+
+          <div class="lux-card-desc">
+            Select a language below. This is a placeholder page — you can replace the text and connect it to your real translation system later.
+          </div>
+
+          <div class="lang-search">
+            <input id="langSearch" type="search" inputmode="search" placeholder="Search language…" autocomplete="off" />
+          </div>
+
+          <div class="lang-list" id="langList" role="radiogroup" aria-label="Languages">
+            <label class="lang-row" data-name="Arabic" data-native="العربية">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx">
+                <div class="lang-nm">Arabic</div>
+                <div class="lang-ds">العربية (RTL)</div>
+              </span>
+              <input type="radio" name="lang" value="ar" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="English" data-native="English">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">English</div><div class="lang-ds">Global</div></span>
+              <input type="radio" name="lang" value="en" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="French" data-native="Français">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">French</div><div class="lang-ds">Français</div></span>
+              <input type="radio" name="lang" value="fr" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Spanish" data-native="Español">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Spanish</div><div class="lang-ds">Español</div></span>
+              <input type="radio" name="lang" value="es" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="German" data-native="Deutsch">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">German</div><div class="lang-ds">Deutsch</div></span>
+              <input type="radio" name="lang" value="de" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Italian" data-native="Italiano">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Italian</div><div class="lang-ds">Italiano</div></span>
+              <input type="radio" name="lang" value="it" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Portuguese" data-native="Português">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Portuguese</div><div class="lang-ds">Português</div></span>
+              <input type="radio" name="lang" value="pt" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Russian" data-native="Русский">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Russian</div><div class="lang-ds">Русский</div></span>
+              <input type="radio" name="lang" value="ru" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Turkish" data-native="Türkçe">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Turkish</div><div class="lang-ds">Türkçe</div></span>
+              <input type="radio" name="lang" value="tr" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Chinese (Simplified)" data-native="简体中文">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Chinese (Simplified)</div><div class="lang-ds">简体中文</div></span>
+              <input type="radio" name="lang" value="zh-Hans" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Chinese (Traditional)" data-native="繁體中文">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Chinese (Traditional)</div><div class="lang-ds">繁體中文</div></span>
+              <input type="radio" name="lang" value="zh-Hant" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Japanese" data-native="日本語">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Japanese</div><div class="lang-ds">日本語</div></span>
+              <input type="radio" name="lang" value="ja" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Korean" data-native="한국어">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Korean</div><div class="lang-ds">한국어</div></span>
+              <input type="radio" name="lang" value="ko" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Hindi" data-native="हिन्दी">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Hindi</div><div class="lang-ds">हिन्दी</div></span>
+              <input type="radio" name="lang" value="hi" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Urdu" data-native="اردو">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Urdu</div><div class="lang-ds">اردو (RTL)</div></span>
+              <input type="radio" name="lang" value="ur" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Persian" data-native="فارسی">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Persian</div><div class="lang-ds">فارسی (RTL)</div></span>
+              <input type="radio" name="lang" value="fa" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Hebrew" data-native="עברית">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Hebrew</div><div class="lang-ds">עברית (RTL)</div></span>
+              <input type="radio" name="lang" value="he" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Indonesian" data-native="Bahasa Indonesia">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Indonesian</div><div class="lang-ds">Bahasa Indonesia</div></span>
+              <input type="radio" name="lang" value="id" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Malay" data-native="Bahasa Melayu">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Malay</div><div class="lang-ds">Bahasa Melayu</div></span>
+              <input type="radio" name="lang" value="ms" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Thai" data-native="ไทย">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Thai</div><div class="lang-ds">ไทย</div></span>
+              <input type="radio" name="lang" value="th" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Vietnamese" data-native="Tiếng Việt">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Vietnamese</div><div class="lang-ds">Tiếng Việt</div></span>
+              <input type="radio" name="lang" value="vi" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Dutch" data-native="Nederlands">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Dutch</div><div class="lang-ds">Nederlands</div></span>
+              <input type="radio" name="lang" value="nl" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Swedish" data-native="Svenska">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Swedish</div><div class="lang-ds">Svenska</div></span>
+              <input type="radio" name="lang" value="sv" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Norwegian" data-native="Norsk">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Norwegian</div><div class="lang-ds">Norsk</div></span>
+              <input type="radio" name="lang" value="no" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Danish" data-native="Dansk">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Danish</div><div class="lang-ds">Dansk</div></span>
+              <input type="radio" name="lang" value="da" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Finnish" data-native="Suomi">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Finnish</div><div class="lang-ds">Suomi</div></span>
+              <input type="radio" name="lang" value="fi" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Polish" data-native="Polski">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Polish</div><div class="lang-ds">Polski</div></span>
+              <input type="radio" name="lang" value="pl" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Ukrainian" data-native="Українська">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Ukrainian</div><div class="lang-ds">Українська</div></span>
+              <input type="radio" name="lang" value="uk" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Greek" data-native="Ελληνικά">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Greek</div><div class="lang-ds">Ελληνικά</div></span>
+              <input type="radio" name="lang" value="el" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Romanian" data-native="Română">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Romanian</div><div class="lang-ds">Română</div></span>
+              <input type="radio" name="lang" value="ro" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Czech" data-native="Čeština">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Czech</div><div class="lang-ds">Čeština</div></span>
+              <input type="radio" name="lang" value="cs" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+
+            <label class="lang-row" data-name="Hungarian" data-native="Magyar">
+              <span class="lang-ic"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+              <span class="lang-tx"><div class="lang-nm">Hungarian</div><div class="lang-ds">Magyar</div></span>
+              <input type="radio" name="lang" value="hu" />
+              <span class="lang-radio" aria-hidden="true"></span>
+            </label>
+          </div>
+
+          <div class="lang-actions">
+            <button class="lux-btn" id="cancelBtn" type="button">Cancel</button>
+            <button class="lux-btn lux-btn-primary" id="saveBtn" type="button">Save</button>
+          </div>
+
+          <div style="height: 6px;"></div>
+        </section>
+
+        <div style="height: 18px;"></div>
+      </div>
+    </main>
+
+    <div class="lux-mini-toast" id="miniToast" role="status" aria-live="polite" aria-atomic="true">Saved</div>
+  </div>
+
+  <script>
+    (function(){
+      const qs = (s, el=document) => el.querySelector(s);
+      const qsa = (s, el=document) => [...el.querySelectorAll(s)];
+      const toastEl = qs('#miniToast');
+      let t = null;
+
+      function toast(msg){
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        clearTimeout(t);
+        t = setTimeout(() => toastEl.classList.remove('show'), 1300);
+      }
+
+      function goBack(){
+        if(history.length > 1) history.back();
+        else location.href = './index000.html';
+      }
+
+      qs('#cancelBtn').addEventListener('click', goBack);
+
+      const stored = localStorage.getItem('lux_lang') || 'ar';
+      const radios = qsa('input[name="lang"]');
+      const match = radios.find(r => r.value === stored);
+      (match || radios[0]).checked = true;
+
+      qsa('.lang-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const r = row.querySelector('input[name="lang"]');
+          if(r) r.checked = true;
+        });
+      });
+
+      const search = qs('#langSearch');
+      const rows = qsa('.lang-row');
+      function applyFilter(){
+        const q = String(search.value || '').trim().toLowerCase();
+        rows.forEach(row => {
+          const name = (row.getAttribute('data-name') || '').toLowerCase();
+          const nat = (row.getAttribute('data-native') || '').toLowerCase();
+          const show = !q || name.includes(q) || nat.includes(q);
+          row.style.display = show ? '' : 'none';
+        });
+      }
+      search.addEventListener('input', applyFilter);
+
+      qs('#saveBtn').addEventListener('click', () => {
+        const selected = qs('input[name="lang"]:checked');
+        const val = selected ? selected.value : 'ar';
+        localStorage.setItem('lux_lang', val);
+
+        const rtl = ['ar','fa','ur','he'].includes(val);
+        localStorage.setItem('lux_rtl', rtl ? '1' : '0');
+
+        toast('Language saved ✅');
+        setTimeout(goBack, 450);
+      });
+    })();
+  </script>
+</body>
+</html>
