@@ -185,6 +185,11 @@ const evMap = {
 const events = evMap[action] || [`lux:settings:${action}`];
 events.forEach(ev => window.dispatchEvent(new CustomEvent(ev)));
 toast(label);
+
+      // Simple page navigation for menu items that have pages.
+      if(action === 'about'){
+        window.location.href = './about.html';
+      }
       closeSettingsMenu();
     });
   }

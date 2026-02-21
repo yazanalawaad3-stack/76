@@ -1396,26 +1396,6 @@ body.lux-solid-bg{
   padding: 6px 14px 24px;
 }
 
-/* About page: remove the home page's global top padding so the back button sits correctly */
-.lux-about-page .lux-app{
-  padding-top: 0 !important;
-  padding-bottom: 40px;
-}
-
-/* About page: compact safe-area header (no extra empty space above) */
-.lux-about-page .lux-head-tight{
-  padding-top: calc(env(safe-area-inset-top) + 6px);
-  padding-bottom: 10px;
-  margin-bottom: 12px;
-}
-
-/* Spacer used on pages where we don't show a right-side icon */
-.lux-head-spacer{
-  width: 44px;
-  height: 44px;
-  display: inline-flex;
-}
-
 
 /* Make refresh visibly interactive */
 .lux-gear-fab.is-loading i{
