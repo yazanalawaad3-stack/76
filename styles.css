@@ -1371,6 +1371,35 @@ body.lux-solid-bg{
   min-width: 0;
 }
 
+
+/* About + Guide pages: remove home top padding and keep header compact */
+.lux-about-page .lux-app,
+.lux-guide-page .lux-app{
+  padding-top: 0 !important;
+  padding-bottom: 40px;
+}
+
+.lux-about-page .lux-head,
+.lux-guide-page .lux-head{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #000;
+}
+
+/* Compact safe-area padding (no extra space above back button) */
+.lux-about-page .lux-head-tight,
+.lux-guide-page .lux-head-tight{
+  padding-top: calc(env(safe-area-inset-top) + 6px);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.lux-about-page .lux-main,
+.lux-guide-page .lux-main{
+  padding: 6px 14px 24px;
+}
+
 /* Wallet page: remove the global top padding (used on home for the top gear)
    and use a compact safe-area aware header instead. */
 .lux-wallet-page .lux-app{
@@ -1394,26 +1423,6 @@ body.lux-solid-bg{
 
 .lux-wallet-page .lux-main{
   padding: 6px 14px 24px;
-}
-
-/* About page: remove the home page's global top padding so the back button sits correctly */
-.lux-about-page .lux-app{
-  padding-top: 0 !important;
-  padding-bottom: 40px;
-}
-
-/* About page: compact safe-area header (no extra empty space above) */
-.lux-about-page .lux-head-tight{
-  padding-top: calc(env(safe-area-inset-top) + 6px);
-  padding-bottom: 10px;
-  margin-bottom: 12px;
-}
-
-/* Spacer used on pages where we don't show a right-side icon */
-.lux-head-spacer{
-  width: 44px;
-  height: 44px;
-  display: inline-flex;
 }
 
 
