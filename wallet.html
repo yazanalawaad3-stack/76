@@ -19,8 +19,8 @@
   <link rel="stylesheet" href="./styles.css" />
 </head>
 
-<body class="lux-solid-bg lux-wallet-page">
-  <div class="lux-app lux-page">
+<body class="lux-body lux-solid-bg lux-wallet-page">
+  <div class="lux-app lux-page lux-app--page">
 
     <!-- Header -->
     <header class="lux-head lux-head-tight" aria-label="Wallet header">
@@ -66,7 +66,9 @@
 
         <div class="lux-qr-wrap" aria-label="QR code">
           <div class="lux-qr-frame">
+            <!-- Prefer local rendering via QRCode.toCanvas; fallback to a hosted QR image if the library fails to load. -->
             <canvas id="qrCanvas" width="220" height="220" aria-label="USDT BEP20 QR"></canvas>
+            <img id="qrImg" class="lux-qr-img" alt="USDT BEP20 QR" loading="lazy" />
           </div>
           <div class="lux-qr-sub">Scan to copy the address instantly</div>
         </div>
