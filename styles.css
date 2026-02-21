@@ -1356,6 +1356,68 @@ body.lux-solid-bg{
 
 /* Wallet page */
 
+/* Wallet header layout + top spacing fix */
+.lux-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.lux-head-title{
+  flex: 1;
+  min-width: 0;
+}
+
+/* Wallet page: remove the global top padding (used on home for the top gear)
+   and use a compact safe-area aware header instead. */
+.lux-wallet-page .lux-app{
+  padding-top: 0 !important;
+  padding-bottom: 40px;
+}
+
+.lux-wallet-page .lux-head{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #000;
+}
+
+/* Compact safe-area padding (no extra "fake" space) */
+.lux-wallet-page .lux-head-tight{
+  padding-top: calc(env(safe-area-inset-top) + 6px);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.lux-wallet-page .lux-main{
+  padding: 6px 14px 24px;
+}
+
+
+/* Make refresh visibly interactive */
+.lux-gear-fab.is-loading i{
+  animation: luxSpin .9s linear infinite;
+}
+@keyframes luxSpin{ to{ transform: rotate(360deg); } }
+
+/* QR fallback image (used when canvas QR is unavailable) */
+.lux-qr-frame{ position: relative; }
+.lux-qr-img{
+  display:none;
+  width:220px;
+  height:220px;
+}
+
+/* Subtle flash when refreshing */
+.lux-address-pill.is-flash{
+  box-shadow: 0 0 0 2px rgba(46,229,157,.35);
+}
+
+
+
 .lux-solid-bg{
   background:#000 !important;
 }
@@ -1366,33 +1428,6 @@ body.lux-solid-bg{
   padding-top: max(env(safe-area-inset-top), 10px);
   padding-bottom: 10px;
   margin-bottom: 10px;
-}
-
-/* Wallet page: remove the global top padding (used on home) so the header sits at the top.
-   Safe-area is handled by .lux-head-tight above. */
-.lux-wallet-page .lux-app{
-  padding-top: 0 !important;
-}
-
-/* Make refresh visibly interactive */
-.lux-gear-fab.is-loading i{
-  animation: luxSpin .9s linear infinite;
-}
-@keyframes luxSpin{ to{ transform: rotate(360deg); } }
-
-/* QR fallback image (used when canvas QR is unavailable) */
-.lux-qr-frame{
-  position: relative;
-}
-.lux-qr-img{
-  display:none;
-  width:220px;
-  height:220px;
-}
-
-/* Subtle flash when refreshing */
-.lux-address-pill.is-flash{
-  box-shadow: 0 0 0 2px rgba(46,229,157,.35);
 }
 .lux-head-title .lux-h1{
   font-weight: 700;
