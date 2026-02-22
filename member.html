@@ -59,7 +59,7 @@
     }
     .iconbtn:active{ transform: scale(.98); background:rgba(255,255,255,.06); }
 
-    .container{ width:min(980px, 100%); margin: 0 auto; padding: 14px 12px calc(26px + 84px);; }
+    .container{ width:min(980px, 100%); margin: 0 auto; padding: 14px 12px 26px; }
     .row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom:10px; }
     .pill{
       display:inline-flex;
@@ -115,22 +115,19 @@
       font-weight: 750;
     }
 
-    /* Bottom level navigation (mobile-friendly) */
-    .bottom-tabs{
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 50;
-      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-      background: rgba(5,7,11,.70);
-      backdrop-filter: blur(12px);
-      border-top: 1px solid var(--line);
+    .level-nav{
+      position: sticky;
+      top: 46px;
+      z-index: 25;
+      padding: 10px 12px;
+      background: rgba(5,7,11,.55);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
     }
-    .bottom-tabs .tabs{
+    .level-nav .tabs{
       margin: 0 auto;
       width: min(980px, 100%);
-      background: rgba(255,255,255,.04);
+      background: rgba(255,255,255,.03);
     }
 
     .hero{
@@ -419,11 +416,20 @@
 </div>
     </header>
 
-    <main class="container" id="app">
-      <div class="row" style="justify-content:flex-start;">
-        <div class="hint">Next target: <strong id="nextLevelText">V2</strong></div>
+    <div class="level-nav" aria-label="Levels">
+      <div class="tabs" role="tablist" aria-label="Levels">
+        <button class="tab" role="tab" aria-selected="false" data-level="V1" type="button">V1</button>
+        <button class="tab" role="tab" aria-selected="false" data-level="V2" type="button">V2</button>
+        <button class="tab" role="tab" aria-selected="false" data-level="V3" type="button">V3</button>
+        <button class="tab" role="tab" aria-selected="false" data-level="V4" type="button">V4</button>
+        <button class="tab" role="tab" aria-selected="false" data-level="V5" type="button">V5</button>
+        <button class="tab" role="tab" aria-selected="false" data-level="V6" type="button">V6</button>
+        <button class="tab" role="tab" aria-selected="false" data-level="V7" type="button">V7</button>
       </div>
-      <section class="hero" aria-label="Selected level">
+    </div>
+
+    <main class="container" id="app">
+<section class="hero" aria-label="Selected level">
         <div class="hero-inner">
           <div>
             <div class="lvl" id="heroLevel">V1</div>
@@ -480,17 +486,6 @@
     </main>
   </div>
 
-  <nav class="bottom-tabs" aria-label="Levels bottom navigation">
-    <div class="tabs" role="tablist" aria-label="Levels">
-      <button class="tab" role="tab" aria-selected="true" data-level="V1" type="button">V1</button>
-      <button class="tab" role="tab" aria-selected="false" data-level="V2" type="button">V2</button>
-      <button class="tab" role="tab" aria-selected="false" data-level="V3" type="button">V3</button>
-      <button class="tab" role="tab" aria-selected="false" data-level="V4" type="button">V4</button>
-      <button class="tab" role="tab" aria-selected="false" data-level="V5" type="button">V5</button>
-      <button class="tab" role="tab" aria-selected="false" data-level="V6" type="button">V6</button>
-    </div>
-  </nav>
-
   <div class="modal" id="achieveModal" role="dialog" aria-modal="true" aria-label="Achievement modal">
     <div class="modal-card">
       <div class="modal-head">
@@ -509,8 +504,8 @@
 
   <script>
     const data = {
-      currentLevel: "V0",
-      nextLevel: "V2",
+      currentLevel: "V1",
+      nextLevel: "V7",
       profile: { balance: 0, users: 0 },
       levels: {
         V1: {
@@ -567,11 +562,32 @@
             { name: "Max Withdrawal", desc: "7000 USDT" },
             { name: "Withdrawal Fee", desc: "5%" },
             { name: "Team Income Depth", desc: "7 levels" }]
+        },
+        V7: {
+          balanceReq: 20000,
+          usersReq: 30,
+          benefits: [
+            { name: "Min Withdrawal", desc: "20 USDT" },
+            { name: "Max Withdrawal", desc: "9000 USDT" },
+            { name: "Withdrawal Fee", desc: "5%" },
+            { name: "Team Income Depth", desc: "8 levels" }]
         }
       }
     };
+    const orderedLevels = Object.keys(data.levels).sort((a,b) => {
+      const na = parseInt(a.slice(1), 10);
+      const nb = parseInt(b.slice(1), 10);
+      return na - nb;
+    });
 
-    const els = {      nextLevelText: document.getElementById("nextLevelText"),
+    function getNextLevel(levelKey){
+      const idx = orderedLevels.indexOf(levelKey);
+      if (idx === -1) return data.nextLevel || "-";
+      return orderedLevels[idx + 1] || "-";
+    }
+
+
+    const els = {
       heroLevel: document.getElementById("heroLevel"),
       heroLock: document.getElementById("heroLock"),
       heroLockText: document.getElementById("heroLockText"),
@@ -688,8 +704,7 @@
       });
 
       els.heroLevel.textContent = levelKey;
-
-      const { pct, achieved } = computeProgress(levelKey);
+const { pct, achieved } = computeProgress(levelKey);
       if (els.barFill) els.barFill.style.width = `${pct}%`;
       if (els.dot1 && els.dot2 && els.dot3) setDots(pct);
       setLock(achieved);
@@ -713,9 +728,8 @@
       document.body.style.overflow = "";
     }
 
-    function init(){      els.nextLevelText.textContent = data.nextLevel;
-
-      els.tabs.forEach((t) => {
+    function init(){
+els.tabs.forEach((t) => {
         t.addEventListener("click", () => selectLevel(t.dataset.level));
       });
 
@@ -729,8 +743,8 @@
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeModal();
       });
-      els.backBtn.addEventListener("click", () => history.back());
-      selectLevel("V1");
+      els.backBtn.addEventListener("click", () => { window.location.href = "myassets.html"; });
+      selectLevel(data.currentLevel || "V1");
     }
 
     init();
