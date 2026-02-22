@@ -1,0 +1,1055 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>security-center</title>
+  <style>
+    :root{
+      --bg:#000;
+      --panel: rgb(12,11,16);
+      --panel2: rgba(16,18,26,0.92);
+      --row: rgb(18,22,31);
+      --row2: rgb(23,32,45);
+      --border: rgba(255,255,255,0.06);
+      --border2: rgba(255,255,255,0.11);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.70);
+      --muted2: rgba(255,255,255,0.55);
+      --good: rgba(80, 220, 160, 0.92);
+      --warn: rgba(255, 200, 85, 0.95);
+      --bad: rgba(255, 90, 110, 0.95);
+      --shadow: 0 14px 30px rgba(0,0,0,0.55);
+      --shadow2: 0 30px 80px rgba(0,0,0,0.78);
+      --radius: 18px;
+      --radius2: 22px;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 700px at 50% -20%, rgba(40,70,120,0.28), transparent 60%),
+        radial-gradient(900px 600px at 120% 120%, rgba(120,40,90,0.20), transparent 55%),
+        #000;
+      color: var(--text);
+      min-height:100%;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding: max(14px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
+    }
+
+    .wrap{
+      width: min(560px, 100%);
+      padding: 10px 10px 22px;
+      position:relative;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 10px 6px 6px;
+      margin-bottom: 10px;
+    }
+    .left{
+      display:flex;
+      align-items:flex-start;
+      gap: 12px;
+      min-width: 0;
+    }
+    .appIcon{
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      flex: 0 0 auto;
+      margin-top: 2px;
+    }
+    .titleWrap{
+      display:grid;
+      gap: 2px;
+      min-width: 0;
+    }
+    .titleWrap .title{
+      text-align:left;
+      font-weight: 850;
+      letter-spacing: 0.2px;
+      font-size: 22px;
+      line-height: 1.08;
+    }
+    .subTitle{
+      color: rgba(255,255,255,0.62);
+      font-size: 13px;
+      line-height: 1.35;
+      max-width: 34ch;
+    }
+    .right{ display:flex; align-items:center; gap: 10px; }
+
+    .iconBtn{
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      color: var(--text);
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.08);
+      cursor:pointer;
+      user-select:none;
+    }
+    .iconBtn:active{ transform: translateY(1px); filter: brightness(1.08); }
+
+    @media (min-width: 900px){
+      body{ align-items:center; padding: 28px; }
+      .wrap{
+        width: min(980px, 100%);
+        padding: 18px 18px 30px;
+      }
+      .subTitle{ max-width: 52ch; }
+    
+      .topbar, .section{
+        max-width: 640px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .topbar{
+        padding-left: 0;
+        padding-right: 0;
+      }
+      .card{
+        border-radius: 26px;
+      }
+}
+
+
+    .screen{
+      width:min(430px, 100vw);
+      height:min(860px, 100vh);
+      padding: calc(18px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+      background: var(--bg);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .noise{
+      position:absolute;
+      inset:-40px;
+      opacity:.08;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+      pointer-events:none;
+      mix-blend-mode: overlay;
+    }
+
+    .appbar{
+      display:grid;
+      grid-template-columns: 40px 1fr 40px;
+      align-items:center;
+      gap:10px;
+      margin: 6px 0 14px;
+      position:relative;
+      z-index:2;
+    }
+
+    .back, .iconBtn{
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      color: var(--text);
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.07);
+      cursor:pointer;
+      user-select:none;
+    }
+    .back:active, .iconBtn:active{ transform: translateY(1px); filter: brightness(1.08); }
+    .title{
+      text-align:center;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .hero{
+      position:relative;
+      z-index:2;
+      margin-bottom: 12px;
+    }
+
+    .heroCard{
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 24px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .heroCard::before{
+      content:"";
+      position:absolute;
+      inset:-60px -60px auto -60px;
+      height: 210px;
+      background:
+        radial-gradient(closest-side, rgba(255,255,255,0.085), rgba(255,255,255,0) 70%),
+        radial-gradient(closest-side, rgba(120,170,255,0.12), rgba(255,255,255,0) 75%);
+      pointer-events:none;
+    }
+
+    .heroTop{
+      display:grid;
+      grid-template-columns: 112px 1fr;
+      gap: 14px;
+      align-items:center;
+      position:relative;
+      z-index:2;
+    }
+
+    .ring{
+      width: 112px;
+      height: 112px;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .ring svg{ transform: rotate(-90deg); }
+    .ringCenter{
+      position:absolute;
+      inset: 10px;
+      border-radius: 999px;
+      background: rgba(7,8,12,0.92);
+      border: 1px solid rgba(255,255,255,0.06);
+      display:grid;
+      place-items:center;
+      text-align:center;
+      padding: 10px;
+      gap: 2px;
+    }
+
+    .score{
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+    .scoreSub{
+      font-size: 12px;
+      color: var(--muted2);
+      font-weight: 650;
+    }
+
+    .heroInfo{
+      display:grid;
+      gap: 6px;
+    }
+    .heroHeadline{
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+      line-height: 1.15;
+    }
+    .heroDesc{
+      color: var(--muted2);
+      font-size: 12.8px;
+      line-height: 1.45;
+    }
+
+    .pillRow{
+      margin-top: 12px;
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:2;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.09);
+      color: rgba(255,255,255,0.86);
+      font-weight: 700;
+      font-size: 12.5px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .pill small{
+      color: var(--muted2);
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .pill:active{ transform: translateY(1px); filter: brightness(1.1); }
+
+    .section{
+      margin-top: 14px;
+      position:relative;
+      z-index:2;
+    }
+
+    .sectionHead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      margin: 0 2px 8px;
+    }
+    .sectionTitle{
+      font-size: 13px;
+      color: rgba(255,255,255,0.76);
+      font-weight: 800;
+      letter-spacing: 0.25px;
+      text-transform: uppercase;
+    }
+    .sectionLink{
+      font-size: 12.5px;
+      color: rgba(160,200,255,0.92);
+      font-weight: 750;
+      cursor:pointer;
+      user-select:none;
+    }
+
+    .card{
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 22px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-40px -40px auto -40px;
+      height: 120px;
+      background: radial-gradient(closest-side, rgba(255,255,255,0.07), rgba(255,255,255,0));
+      pointer-events:none;
+    }
+
+    .list{ display:grid; gap: 10px; position:relative; z-index:2; }
+
+    .row{
+      display:grid;
+      grid-template-columns: 44px 1fr auto;
+      align-items:center;
+      gap: 12px;
+      padding: 14px 14px;
+      border-radius: 16px;
+      background: var(--row);
+      border: 1px solid var(--border);
+      cursor:pointer;
+      user-select:none;
+    }
+    .row:nth-child(even){ background: var(--row2); }
+
+    .row:active{ transform: translateY(1px); filter: brightness(1.06); }
+    .row:focus-visible{ outline: 2px solid rgba(255,255,255,0.22); outline-offset: 2px; }
+
+    .ico{
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+    }
+
+    .label{
+      display:grid;
+      gap: 2px;
+    }
+    .label b{ font-size: 15.5px; font-weight: 750; }
+    .label span{ font-size: 12.3px; color: var(--muted2); }
+
+    .action{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      color: var(--muted2);
+      font-weight: 800;
+      font-size: 12.5px;
+      white-space:nowrap;
+    }
+
+    .value{
+      font-weight: 800;
+      font-size: 13px;
+      color: rgba(255,255,255,0.78);
+      letter-spacing: .2px;
+    }
+
+    .row.static{
+      cursor: default;
+    }
+    .row.static:hover{
+      background: rgba(255,255,255,0.03);
+      border-color: rgba(255,255,255,0.08);
+      transform: none;
+    }
+
+    .badge{
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+      font-weight: 800;
+      font-size: 12px;
+      color: rgba(255,255,255,0.82);
+    }
+    .badge.good{ border-color: rgba(80,220,160,0.35); color: var(--good); background: rgba(80,220,160,0.10); }
+    .badge.warn{ border-color: rgba(255,200,85,0.35); color: var(--warn); background: rgba(255,200,85,0.10); }
+    .badge.bad{ border-color: rgba(255,90,110,0.35); color: var(--bad); background: rgba(255,90,110,0.10); }
+
+    .chev{ opacity: 0.85; }
+
+    .toggle{
+      width: 46px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      position:relative;
+      display:inline-block;
+    }
+    .toggle::after{
+      content:"";
+      position:absolute;
+      top: 50%;
+      left: 4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.55);
+      transition: left .18s ease, background .18s ease, opacity .18s ease;
+      opacity: .92;
+    }
+    .toggle.on{
+      background: rgba(80,220,160,0.12);
+      border-color: rgba(80,220,160,0.30);
+    }
+    .toggle.on::after{
+      left: 20px;
+      background: rgba(160,255,220,0.95);
+    }
+
+    .mini{
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      display:grid;
+      gap: 6px;
+    }
+    .miniTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .miniTop b{ font-size: 13.5px; font-weight: 850; }
+    .mini p{
+      margin:0;
+      color: var(--muted2);
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+
+    /* Bottom sheet */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.62);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding: 14px 14px calc(14px + env(safe-area-inset-bottom));
+      z-index: 999;
+    }
+    .overlay.show{ display:flex; }
+
+    .sheet{
+      width: min(520px, 100%);
+      background: rgba(10,10,14,0.96);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 22px;
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+      position:relative;
+      transform: translateY(8px);
+      animation: rise .18s ease-out forwards;
+    }
+    @keyframes rise{ to{ transform: translateY(0); } }
+
+    .sheet::before{
+      content:"";
+      position:absolute;
+      inset:-60px -60px auto -60px;
+      height: 170px;
+      background: radial-gradient(closest-side, rgba(255,255,255,0.085), rgba(255,255,255,0));
+      pointer-events:none;
+    }
+
+    .sheetHead{
+      padding: 14px 16px 10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 10px;
+      position:relative;
+      z-index:2;
+    }
+    .sheetTitle{
+      font-weight: 900;
+      letter-spacing: .2px;
+      font-size: 16px;
+    }
+    .sheetSub{
+      margin-top: 6px;
+      color: var(--muted2);
+      font-size: 12.5px;
+      line-height: 1.35;
+      max-width: 42ch;
+    }
+    .close{
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.10);
+      cursor:pointer;
+      user-select:none;
+    }
+    .sheetBody{ padding: 6px 16px 16px; position:relative; z-index:2; }
+
+    .field{ margin-top: 12px; }
+    .fieldLabel{ color: var(--muted2); font-size: 12.5px; margin-bottom: 8px; }
+
+    .input{
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border-radius: 12px;
+      background: rgba(8,10,14,0.85);
+      border: 1px solid rgba(120,160,220,0.25);
+      color: var(--text);
+      outline:none;
+    }
+    .input::placeholder{ color: rgba(255,255,255,0.35); }
+    .input:focus{ border-color: rgba(140,190,255,0.50); box-shadow: 0 0 0 3px rgba(80,150,240,0.12); }
+
+    .row2{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+    }
+    .ghostBtn{
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.86);
+      font-weight: 850;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+
+    .primary{
+      width: 100%;
+      height: 48px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.55);
+      font-weight: 900;
+      letter-spacing: 0.2px;
+      cursor: not-allowed;
+      margin-top: 14px;
+    }
+    .primary.enabled{
+      cursor:pointer;
+      background: rgba(255,255,255,0.11);
+      color: rgba(255,255,255,0.92);
+      border-color: rgba(255,255,255,0.16);
+    }
+
+    .statusLine{
+      margin-top: 10px;
+      font-size: 12.5px;
+      color: rgba(255,255,255,0.65);
+      min-height: 16px;
+    }
+
+    /* Desktop framing */
+    @media (min-width: 900px){
+      body{
+        background:
+          radial-gradient(1200px 700px at 50% -20%, rgba(40,70,120,0.28), transparent 60%),
+          radial-gradient(900px 600px at 120% 120%, rgba(120,40,90,0.20), transparent 55%),
+          #000;
+      }
+      .screen{
+        border-radius: 28px;
+        box-shadow: var(--shadow2);
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="topbar">
+      <div class="left">
+        <div class="appIcon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2 4 6v6c0 5 3.4 9.7 8 10 4.6-.3 8-5 8-10V6l-8-4Z" stroke="rgba(255,255,255,0.62)" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M9 12l2 2 4-5" stroke="rgba(255,255,255,0.75)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="titleWrap">
+          <div class="title">Security Center</div>
+</div>
+      </div>
+      <div class="right">
+        <button class="iconBtn" type="button" id="helpBtn" aria-label="Help">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 18h.01" stroke="rgba(255,255,255,0.75)" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M9.5 9a2.5 2.5 0 1 1 4.4 1.6c-.8.8-1.9 1.2-1.9 2.4v.4" stroke="rgba(255,255,255,0.65)" stroke-width="1.7" stroke-linecap="round"/>
+            <path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10Z" stroke="rgba(255,255,255,0.35)" stroke-width="1.6"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="section">
+<div class="card">
+        <div class="list">
+
+          <div class="row static">
+            <div class="ico" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <rect x="7" y="2.8" width="10" height="18.4" rx="2.2" stroke="rgba(255,255,255,0.45)" stroke-width="1.6"/>
+                <path d="M10 18.2h4" stroke="rgba(255,255,255,0.55)" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="label">
+              <b>Phone</b>
+              <span class="muted">+961 70 123 456</span>
+            </div>
+            <div class="action">
+              <span class="value">+961 70 123 456</span>
+            </div>
+          </div>
+
+          <div class="row" tabindex="0" data-open="password">
+            <div class="ico" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <rect x="4" y="11" width="16" height="10" rx="2.2" stroke="rgba(255,255,255,0.48)" stroke-width="1.6"/>
+                <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="rgba(255,255,255,0.48)" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M12 15v3" stroke="rgba(255,255,255,0.55)" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="label">
+              <b>Login Password</b>
+              <span id="pwSub">Last changed: 42 days ago</span>
+            </div>
+            <div class="action">
+              <span class="badge warn" id="pwBadge">Set</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M10 7l5 5-5 5" stroke="rgba(255,255,255,0.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="row" tabindex="0" data-open="email">
+            <div class="ico" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="6" width="18" height="12" rx="2.2" stroke="rgba(255,255,255,0.45)" stroke-width="1.6"/>
+                <path d="M4 8l8 6 8-6" stroke="rgba(255,255,255,0.45)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="label">
+              <b>Email</b>
+              <span id="emailSub">Not set</span>
+            </div>
+            <div class="action">
+              <span class="badge warn" id="emailBadge">Set</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M10 7l5 5-5 5" stroke="rgba(255,255,255,0.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="row" tabindex="0" data-open="changeEmail">
+            <div class="ico" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M4 6h16v12H4z" stroke="rgba(255,255,255,0.42)" stroke-width="1.6" />
+                <path d="M4 8l8 6 8-6" stroke="rgba(255,255,255,0.42)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16.8 4.6 19.4 2 22 4.6l-2.6 2.6" stroke="rgba(255,255,255,0.62)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="label">
+              <b>Change Email</b>
+              <span id="changeEmailSub">Update your email safely</span>
+            </div>
+            <div class="action">
+              <span class="badge good" id="changeEmailBadge">Update</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M10 7l5 5-5 5" stroke="rgba(255,255,255,0.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <section class="sheet" role="dialog" aria-modal="true" aria-label="Sheet">
+      <header class="sheetHead">
+        <div>
+          <div class="sheetTitle" id="sheetTitle">Title</div>
+          <div class="sheetSub" id="sheetSub">Details</div>
+        </div>
+        <div class="close" role="button" tabindex="0" aria-label="Close" id="closeBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M18 6L6 18M6 6l12 12" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </header>
+      <div class="sheetBody" id="sheetBody"></div>
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      const $ = (s, r=document) => r.querySelector(s);
+      const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+
+      const overlay = $("#overlay");
+      const sheetTitle = $("#sheetTitle");
+      const sheetSub = $("#sheetSub");
+      const sheetBody = $("#sheetBody");
+      const closeBtn = $("#closeBtn");
+      const helpBtn = $("#helpBtn");
+      const pwSub = $("#pwSub");
+      const pwBadge = $("#pwBadge");
+      const emailSub = $("#emailSub");
+      const emailBadge = $("#emailBadge");
+
+      const storageKey = "security_center_v1";
+      const defaultState = {        email: "",
+        lastPwChangeDays: 42
+      };
+
+      const state = Object.assign({}, defaultState, safeParse(localStorage.getItem(storageKey)) || {});
+      function safeParse(v){ try{ return JSON.parse(v); }catch(e){ return null; } }
+      function save(){ localStorage.setItem(storageKey, JSON.stringify(state)); }
+
+      function escapeHtml(str){
+        return String(str).replace(/[&<>"']/g, s=>({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+        }[s]));
+      }
+
+      function isEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||"").trim()); }
+
+      function updateRows(){
+
+        if(state.email){
+          emailSub.textContent = state.email;
+          emailBadge.textContent = "Ready";
+          emailBadge.className = "badge good";
+        }else{
+          emailSub.textContent = "Not set";
+          emailBadge.textContent = "Set";
+          emailBadge.className = "badge warn";
+        }
+
+        const d = Math.max(0, Number(state.lastPwChangeDays||0));
+        pwSub.textContent = "Last changed: " + d + " days ago";
+        const needs = d > 30;
+        pwBadge.textContent = needs ? "Update" : "Set";
+        pwBadge.className = "badge " + (needs ? "warn" : "good");
+      }
+
+      function openSheet(key){
+        const cfg = sheets[key] || sheets.help;
+        sheetTitle.textContent = cfg.title;
+        sheetSub.textContent = cfg.sub;
+        sheetBody.innerHTML = "";
+        cfg.render(sheetBody);
+        overlay.classList.add("show");
+        overlay.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeSheet(){
+        overlay.classList.remove("show");
+        overlay.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+
+      function primaryBtn(text){
+        const b = document.createElement("button");
+        b.className = "primaryBtn";
+        b.type = "button";
+        b.textContent = text;
+        return b;
+      }
+
+      function statusLine(){
+        const d = document.createElement("div");
+        d.className = "statusLine";
+        d.textContent = "";
+        return d;
+      }
+
+      function field(label, type, placeholder, id, attrs=""){
+        const w = document.createElement("div");
+        w.className = "field";
+        w.innerHTML = `
+          <div class="fieldLabel">${escapeHtml(label)}</div>
+          <input class="input" id="${escapeHtml(id)}" type="${escapeHtml(type)}" placeholder="${escapeHtml(placeholder)}" ${attrs} />
+        `;
+        return w;
+      }
+
+      const sheets = {
+        help: {
+          title: "Help",
+          sub: "This is a UI template. Connect your backend to make it live.",
+          render(root){
+            const p = document.createElement("p");
+            p.style.margin = "0 0 10px";
+            p.style.color = "rgba(255,255,255,0.75)";
+            p.textContent = "Each row opens a popup. Replace the demo save logic with your API calls.";
+            root.appendChild(p);
+            const btn = primaryBtn("Close");
+            btn.classList.add("enabled");
+            btn.addEventListener("click", closeSheet);
+            root.appendChild(btn);
+          }
+        },
+        password: {
+          title: "Login Password",
+          sub: "Use a unique passphrase with 12+ characters (demo).",
+          render(root){
+            root.appendChild(field("Current password", "password", "Enter current password", "curPw", 'autocomplete="current-password"'));
+            root.appendChild(field("New password", "password", "Enter new password", "newPw", 'autocomplete="new-password"'));
+            root.appendChild(field("Confirm password", "password", "Confirm new password", "newPw2", 'autocomplete="new-password"'));
+
+            const status = statusLine();
+            const btn = primaryBtn("Confirm");
+            btn.disabled = true;
+
+            function validate(){
+              const c = $("#curPw").value.trim();
+              const a = $("#newPw").value.trim();
+              const b = $("#newPw2").value.trim();
+              const ok = c.length >= 1 && a.length >= 8 && b.length >= 8 && a === b;
+              btn.classList.toggle("enabled", ok);
+              btn.disabled = !ok;
+              status.textContent = ok ? "Ready to confirm." : "Fill all fields. New passwords must match.";
+            }
+
+            root.addEventListener("input", validate);
+            validate();
+
+            btn.addEventListener("click", ()=>{
+              state.lastPwChangeDays = 0;
+              save();
+              updateRows();
+              status.textContent = "Saved locally (demo).";
+              setTimeout(closeSheet, 450);
+            });
+
+            root.appendChild(status);
+            root.appendChild(btn);
+          }
+        },
+        email: {
+          title: "Email",
+          sub: "Set your email (demo).",
+          render(root){
+            root.appendChild(field("Email", "email", "name@example.com", "emInput", 'inputmode="email" autocomplete="email"'));
+            const codeWrap = document.createElement("div");
+            codeWrap.className = "field";
+            codeWrap.innerHTML = `
+              <div class="fieldLabel">Verification code</div>
+              <div class="row2">
+                <input class="input" id="emCode" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter code" disabled />
+                <button class="ghostBtn" id="sendCodeBtn" type="button">Send</button>
+              </div>
+            `;
+            root.appendChild(codeWrap);
+
+            const status = statusLine();
+            const btn = primaryBtn("Confirm");
+            btn.disabled = true;
+            root.appendChild(status);
+            root.appendChild(btn);
+
+            const emInput = $("#emInput");
+            const emCode = $("#emCode");
+            const sendBtn = $("#sendCodeBtn");
+            if(state.email) emInput.value = state.email;
+
+            let sent = false;
+
+            function validate(){
+              const v = emInput.value.trim();
+              const c = emCode.value.trim();
+              const ok = isEmail(v) && sent && c.length >= 4;
+              btn.classList.toggle("enabled", ok);
+              btn.disabled = !ok;
+            }
+
+            sendBtn.addEventListener("click", ()=>{
+              const v = emInput.value.trim();
+              if(!isEmail(v)){ status.textContent = "Enter a valid email first."; return; }
+              sent = true;
+              emCode.disabled = false;
+              status.textContent = "Code sent (demo). Use 123456.";
+              emCode.focus();
+              validate();
+            });
+
+            root.addEventListener("input", ()=>{
+              if(!sent) status.textContent = "";
+              validate();
+            });
+
+            btn.addEventListener("click", ()=>{
+              if($("#emCode").value.trim() !== "123456"){ status.textContent = "Invalid code (demo). Try 123456."; return; }
+              state.email = emInput.value.trim();
+              save();
+              updateRows();
+              status.textContent = "Saved locally (demo).";
+              setTimeout(closeSheet, 450);
+            });
+
+            validate();
+          }
+        },
+        changeEmail: {
+          title: "Change Email",
+          sub: "Update your email with verification (demo).",
+          render(root){
+            const cur = state.email ? state.email : "";
+            const curBlock = document.createElement("div");
+            curBlock.className = "mini";
+            curBlock.innerHTML = `
+              <div class="miniTop">
+                <b>Current email</b>
+                <span class="badge ${cur ? "good" : "warn"}">${cur ? escapeHtml(cur) : "Not set"}</span>
+              </div>
+              <p>${cur ? "You can change it using a verification code." : "Set an email first, then use this to change it."}</p>
+            `;
+            root.appendChild(curBlock);
+
+            root.appendChild(field("New email", "email", "new@example.com", "newEmail", 'inputmode="email" autocomplete="email"'));
+            const codeWrap = document.createElement("div");
+            codeWrap.className = "field";
+            codeWrap.innerHTML = `
+              <div class="fieldLabel">Verification code</div>
+              <div class="row2">
+                <input class="input" id="chgCode" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter code" disabled />
+                <button class="ghostBtn" id="chgSend" type="button">Send</button>
+              </div>
+            `;
+            root.appendChild(codeWrap);
+
+            const status = statusLine();
+            const btn = primaryBtn("Update");
+            btn.disabled = true;
+            root.appendChild(status);
+            root.appendChild(btn);
+
+            const newEmail = $("#newEmail");
+            const chgCode = $("#chgCode");
+            const chgSend = $("#chgSend");
+
+            let sent = false;
+
+            function validate(){
+              const v = newEmail.value.trim();
+              const c = chgCode.value.trim();
+              const ok = isEmail(v) && sent && c.length >= 4;
+              btn.classList.toggle("enabled", ok);
+              btn.disabled = !ok;
+            }
+
+            chgSend.addEventListener("click", ()=>{
+              if(!state.email){ status.textContent = "Set an email first."; return; }
+              const v = newEmail.value.trim();
+              if(!isEmail(v)){ status.textContent = "Enter a valid new email."; return; }
+              sent = true;
+              chgCode.disabled = false;
+              status.textContent = "Code sent (demo). Use 654321.";
+              chgCode.focus();
+              validate();
+            });
+
+            root.addEventListener("input", ()=>{
+              if(!sent) status.textContent = "";
+              validate();
+            });
+
+            btn.addEventListener("click", ()=>{
+              if(chgCode.value.trim() !== "654321"){ status.textContent = "Invalid code (demo). Try 654321."; return; }
+              state.email = newEmail.value.trim();
+              save();
+              updateRows();
+              status.textContent = "Updated locally (demo).";
+              setTimeout(closeSheet, 450);
+            });
+
+            validate();
+          }
+        }
+      };
+
+      function wireOpeners(){
+        $$("[data-open]").forEach(el=>{
+          el.addEventListener("click", ()=> openSheet(el.getAttribute("data-open")));
+          el.addEventListener("keydown", (e)=>{
+            if(e.key === "Enter" || e.key === " "){ e.preventDefault(); openSheet(el.getAttribute("data-open")); }
+          });
+        });
+      }
+
+      overlay.addEventListener("click", (e)=>{ if(e.target === overlay) closeSheet(); });
+      closeBtn.addEventListener("click", closeSheet);
+      closeBtn.addEventListener("keydown", (e)=>{ if(e.key === "Enter" || e.key === " ") closeSheet(); });
+      helpBtn.addEventListener("click", ()=> openSheet("help"));
+
+      updateRows();
+      wireOpeners();
+    })();
+  </script>
+</body>
+</html>

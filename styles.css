@@ -1614,3 +1614,45 @@ body.lux-solid-bg{
 .lux-note-list li{
   margin: 8px 0;
 }
+
+/* 
+ * Generic dark-themed input styling for custom forms across the dashboard.
+ * These inputs inherit the same color palette as other components.
+ */
+.lux-input{
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.14);
+  color: var(--text);
+  font-size: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+}
+.lux-input:focus{
+  outline: none;
+  border-color: rgba(255,255,255,.3);
+  box-shadow: 0 0 0 2px rgba(255,255,255,.2);
+}
+.lux-input::placeholder{
+  color: var(--muted2);
+}
+
+
+/* Lux Modal */
+.lux-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter: blur(8px);display:none;align-items:center;justify-content:center;z-index:9999;padding:18px;}
+.lux-modal-backdrop.show{display:flex;}
+.lux-modal{width:min(520px,100%);border-radius:var(--radius2);background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.6);overflow:hidden;}
+.lux-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 16px 10px;}
+.lux-modal-title{font-size:16px;font-weight:700;letter-spacing:.2px;}
+.lux-modal-sub{color:var(--muted);font-size:12px;margin-top:4px;}
+.lux-modal-x{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);width:38px;height:38px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;}
+.lux-modal-body{padding:0 16px 16px;}
+.lux-kv{display:grid;gap:10px;margin-top:10px;}
+.lux-kv .lux-field-label{margin:0;}
+.lux-modal-actions{display:flex;gap:10px;margin-top:14px;}
+.lux-btn-primary{appearance:none;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg, rgba(140,84,255,.9), rgba(0,209,255,.55));color:#fff;font-weight:700;border-radius:16px;padding:12px 14px;display:inline-flex;align-items:center;justify-content:center;gap:10px;}
+.lux-btn-ghost{appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);font-weight:700;border-radius:16px;padding:12px 14px;display:inline-flex;align-items:center;justify-content:center;gap:10px;}
+.lux-seo{color:var(--muted);font-size:13px;line-height:1.7;}
+.lux-seo h2,.lux-seo h3{color:var(--text);font-size:14px;margin:18px 0 8px;}
+.lux-seo ul{margin:8px 0 0 18px;}

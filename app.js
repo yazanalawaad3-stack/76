@@ -59,6 +59,17 @@
     btn.addEventListener('click', () => {
       const screen = btn.getAttribute('data-screen');
       activateDock(screen);
+      // Navigate to dedicated pages when tapping bottom nav items
+      if(screen && typeof screen === 'string'){
+        const s = screen.toLowerCase();
+        if(s === 'power'){
+          window.location.href = './power.html';
+        }else if(s.includes('ai')){
+          window.location.href = './ai-assets.html';
+        }else if(s === 'market'){
+          window.location.href = './index000.html';
+        }
+      }
     });
   });
 
@@ -73,7 +84,11 @@
       const raw = el.textContent.replace(/,/g,'');
       const v = Number(raw);
       const next = v + 250;
-      el.textContent = next.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      // Format using en-US to avoid locale-specific separators like middots
+      el.textContent = next.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
       toast('Demo balance updated');
     });
   }
@@ -81,13 +96,9 @@
   // Invite friends / referral
   const inviteBtn = qs('#inviteFriendsBtn');
   if(inviteBtn){
-    inviteBtn.addEventListener('click', async () => {
-      // Replace these with real values from your backend/user session.
-      const referralCode = 'LUX-654';
-      const referralLink = `${location.origin}${location.pathname}?ref=${encodeURIComponent(referralCode)}`;
-
-      const ok = await safeCopy(referralLink);
-      toast(ok ? 'Invite link copied ✅' : `Referral code: ${referralCode}`);
+    // Navigate to dedicated invite page instead of copying directly.
+    inviteBtn.addEventListener('click', () => {
+      window.location.href = './invite.html';
     });
   }
 
@@ -196,6 +207,16 @@ toast(label);
       if(action === 'language'){
         window.location.href = './language.html';
       }
+      // Added navigation to new pages
+      if(action === 'member'){
+        window.location.href = './member.html';
+      }
+      if(action === 'rewards'){
+        window.location.href = './rewards.html';
+      }
+      if(action === 'security'){
+        window.location.href = './security.html';
+      }
       closeSettingsMenu();
     });
   }
@@ -217,20 +238,27 @@ toast(label);
     });
   }
 
-  // Quick actions
+// Quick actions
 const quickNetworkBtn = qs('#quickNetworkBtn');
 if(quickNetworkBtn){
   quickNetworkBtn.addEventListener('click', () => {
-    // Keep backward compatibility with the old event name.
-    window.dispatchEvent(new CustomEvent('lux:network:open'));
-    window.dispatchEvent(new CustomEvent('lux:myteam:open'));
-    const labelEl = qs('.lux-quick-label', quickNetworkBtn);
-    toast(String(labelEl ? labelEl.textContent : 'Network').trim() || 'Network');
+    // Navigate to the new network page instead of emitting only events.
+    window.location.href = './network.html';
   });
 }
 
+// Transfer quick action: detect button by its label and navigate
+const quickButtons = qsa('.lux-quick');
+quickButtons.forEach(btn => {
+  const labelEl = qs('.lux-quick-label', btn);
+  const label = String(labelEl ? labelEl.textContent : '').trim().toLowerCase();
+  if(label === 'transfer'){
+    btn.addEventListener('click', () => {
+      window.location.href = './transfer.html';
+    });
+  }
+});
 
-  
 
   // Navigate to Wallet page
   const walletBtn = qs('#walletBtn');

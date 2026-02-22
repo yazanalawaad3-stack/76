@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Network</title>
+  <style>
+    :root{
+      --page-bg:#0C0B10;
+      --panel:#111111;
+      --panel-2:#0B0C10;
+      --border:#233246;
+      --divider:#323233;
+      --text:#ffffff;
+      --muted:#8D9095;
+      --accent:#f5c542;
+      --good:#38d996;
+      --bad:#ff5c7a;
+      --shadow: 0 14px 42px rgba(0,0,0,.55);
+      --grad: linear-gradient(90deg, #0B2F3B 0%, #101B20 100%);
+      --radius: 14px;
+      --radius-sm: 10px;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--page-bg);color:var(--text)}
+
+    .app{min-height:100vh;background:var(--page-bg)}
+
+    .header{
+      position:sticky;top:0;z-index:50;height:56px;
+      display:flex;align-items:center;gap:10px;
+      padding:0 14px;
+      background:#000;border-bottom:1px solid rgba(255,255,255,.06)
+    }
+    .back{
+      width:36px;height:36px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(11,12,16,.95);
+      display:flex;align-items:center;justify-content:center;
+      text-decoration:none
+    }
+    .arrow{width:10px;height:10px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg)}
+    .title{flex:1;text-align:center;font-size:16px;font-weight:650;letter-spacing:.2px;color:rgba(255,255,255,.72);margin-right:46px}
+
+    main{padding:18px 16px 28px}
+
+    .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+
+    .card{
+      border-radius:var(--radius);
+      background:var(--grad);
+      border:1px solid rgba(255,255,255,.08);
+      padding:14px 14px 12px;
+      box-shadow:var(--shadow)
+    }
+
+    /* Summary card accent (Team Size) */
+    .summaryYellow{
+      background:
+        radial-gradient(1200px 240px at 20% 0%, rgba(255,200,80,.28) 0%, rgba(255,200,80,0) 60%),
+        linear-gradient(90deg, #0B2F3B 0%, #101B20 100%);
+      border: 1px solid rgba(255,200,80,.22);
+      box-shadow: 0 16px 50px rgba(0,0,0,.58), 0 0 0 1px rgba(255,200,80,.08) inset;
+      color: var(--text);
+    }
+    .summaryYellow .k{color: rgba(255,255,255,.66)}
+    .summaryYellow .hint{color: rgba(255,255,255,.62)}
+    .k{font-size:11px;color:var(--muted);margin-bottom:10px}
+    .v{font-size:22px;font-weight:780}
+    .split{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .split .v{font-size:16px;font-weight:720}
+    .split .hint{font-size:11px;color:var(--muted)}
+
+    .pillbar{
+      border-radius:var(--radius);
+      background:var(--panel);
+      border:1px solid var(--border);
+      padding:12px;
+      box-shadow:var(--shadow);
+      margin-bottom:12px
+    }
+    .pillbar h3{font-size:12px;color:rgba(255,255,255,.7);font-weight:650;margin-bottom:10px}
+    .pills{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{
+      padding:9px 12px;border-radius:999px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      color:rgba(255,255,255,.72);
+      font-size:12px;cursor:pointer;user-select:none
+    }
+    .pill.active{background:rgba(0,209,255,.12);border:1px solid rgba(0,209,255,.35);color:#eafcff}
+
+    .section{font-size:12px;color:var(--accent);margin:8px 0 8px}
+
+    .tableWrap{
+      border-radius:var(--radius);
+      overflow:hidden;
+      background:var(--panel-2);
+      border:1px solid var(--border);
+      box-shadow:var(--shadow)
+    }
+    .table{width:100%;border-collapse:separate;border-spacing:0;min-width:700px}
+    .table thead{background:#111}
+    .table th,.table td{padding:11px 10px;text-align:left;font-size:12px;white-space:nowrap}
+    .table th{color:rgba(255,255,255,.55);font-weight:650;border-bottom:1px solid var(--divider)}
+    .table td{color:#cacfd8;border-bottom:1px solid rgba(255,255,255,.06)}
+    .table tr:last-child td{border-bottom:none}
+    .right{text-align:right}
+    .center{text-align:center}
+
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:750;letter-spacing:.2px}
+    .dot{width:8px;height:8px;border-radius:999px;background:var(--muted)}
+    .b-active{background:rgba(56,217,150,.12);border:1px solid rgba(56,217,150,.35);color:#d9ffef}
+    .b-active .dot{background:var(--good)}
+    .b-inactive{background:rgba(255,92,122,.12);border:1px solid rgba(255,92,122,.35);color:#ffe0e6}
+    .b-inactive .dot{background:var(--bad)}
+
+    .empty{
+      border-radius:var(--radius);
+      border:1px dashed rgba(255,255,255,.14);
+      color:rgba(255,255,255,.6);
+      padding:18px 12px;
+      text-align:center;
+      background:rgba(255,255,255,.03);
+      margin-top:10px
+    }
+
+    /* Mobile table scroll */
+    .scrollX{overflow:auto;-webkit-overflow-scrolling:touch}
+    .scrollX::-webkit-scrollbar{height:10px}
+    .scrollX::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:999px}
+
+    /* Desktop layout */
+    @media (min-width: 768px){
+      main{padding:22px 22px 34px}
+      .grid{grid-template-columns: 1fr;gap:14px}
+      .grid .card{width:100%}
+    }
+    @media (max-width: 420px){
+      .split{flex-direction:column;align-items:flex-start}
+    }
+    @media (min-width: 1100px){
+      .app{max-width:1100px;margin:0 auto;border-left:1px solid #111;border-right:1px solid #111}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <a class="back" href="javascript:history.back()" aria-label="Back"><div class="arrow"></div></a>
+      <div class="title">Network</div>
+    </header>
+
+    <main>
+      <section class="grid" aria-label="Summary">
+        <div class="card summaryYellow">
+          <div class="k">Team Size</div>
+          <div class="v" id="sumTeam">0</div>
+          <div class="k" style="margin-top:12px">Active / Inactive</div>
+          <div class="split">
+            <div class="v" id="sumActiveSplit">0 / 0</div>
+            <div class="hint" id="sumActiveHint">Active = last 30 days</div>
+          </div>
+        </div>
+
+        
+      </section>
+
+      <section class="pillbar" aria-label="Quick views">
+        <h3>Quick View</h3>
+        <div class="pills">
+          <div class="pill active" data-view="all">All Members</div>
+          <div class="pill" data-view="active">Active Members</div>
+          <div class="pill" data-view="inactive">Inactive Members</div>
+        </div>
+      </section>
+
+      <div class="section">Team List</div>
+
+      <div class="tableWrap">
+        <div class="scrollX">
+          <table class="table" aria-label="Team table">
+            <thead>
+              <tr>
+                <th>Account</th>
+                <th>ID</th>
+                <th class="center">Level</th>
+                <th class="center">Status</th>
+                <th class="right">Registered</th>
+                <th class="right">Last Active</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="empty" class="empty" style="display:none">No members found.</div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const ACTIVE_WINDOW_DAYS = 30;
+
+    // Demo data (remove if you load from Supabase)
+    const demoMembers = [
+      { account: "user_a", id: "10021", level: 1, created_at: "2025-11-12", last_active: "2026-02-18" },
+      { account: "user_b", id: "10058", level: 2, created_at: "2025-09-02", last_active: "2026-01-12" },
+      { account: "user_c", id: "10111", level: 1, created_at: "2026-02-02", last_active: "2026-02-21" },
+      { account: "user_d", id: "10202", level: 3, created_at: "2025-12-08", last_active: "2025-12-15" },
+      { account: "user_e", id: "10333", level: 2, created_at: "2025-10-25", last_active: "2026-02-05" }
+    ];
+
+    async function loadMembers(){
+      const sb = window.supabaseClient || window.supabase;
+      if (!sb || !sb.from) return demoMembers;
+
+      // Example query (adjust table/columns)
+      // const { data, error } = await sb
+      //   .from("team_members")
+      //   .select("account,id,level,created_at,last_active")
+      //   .order("created_at", { ascending: false });
+      // if (error) return demoMembers;
+      // return (data || []).map(x => ({
+      //   account: x.account ?? "-",
+      //   id: String(x.id ?? "-"),
+      //   level: Number(x.level ?? 1),
+      //   created_at: (x.created_at || "").slice(0,10),
+      //   last_active: (x.last_active || "").slice(0,10)
+      // }));
+
+      return demoMembers;
+    }
+
+    const state = { view: "all", members: [] };
+
+    const el = {
+      sumTeam: document.getElementById("sumTeam"),
+      sumActiveSplit: document.getElementById("sumActiveSplit"),
+      sumActiveHint: document.getElementById("sumActiveHint"),
+      tbody: document.getElementById("tbody"),
+      empty: document.getElementById("empty"),
+      pills: Array.from(document.querySelectorAll(".pill"))
+    };
+
+    function parseDate(s){
+      if (!s) return null;
+      const d = new Date(s + "T00:00:00");
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    function daysBetween(a, b){
+      const ms = Math.abs(a.getTime() - b.getTime());
+      return Math.floor(ms / 86400000);
+    }
+
+    function isActive(member){
+      const last = parseDate(member.last_active);
+      if (!last) return false;
+      const now = new Date();
+      return daysBetween(now, last) <= ACTIVE_WINDOW_DAYS;
+    }
+
+    function badge(active){
+      return active
+        ? '<span class="badge b-active"><span class="dot"></span>ACTIVE</span>'
+        : '<span class="badge b-inactive"><span class="dot"></span>INACTIVE</span>';
+    }
+
+    function escapeHtml(str){
+      return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+      }[c]));
+    }
+
+    function computeAndRender(){
+      const enriched = state.members.map(m => ({ ...m, __active: isActive(m) }));
+
+      const list = enriched.filter(m => {
+        if (state.view === "active") return m.__active;
+        if (state.view === "inactive") return !m.__active;
+        return true;
+      });
+
+      // Summary
+      const total = enriched.length;
+      const active = enriched.filter(x => x.__active).length;
+      const inactive = total - active;
+
+      el.sumTeam.textContent = String(total);
+      el.sumActiveSplit.textContent = `${active} / ${inactive}`;
+      el.sumActiveHint.textContent = `Active = last ${ACTIVE_WINDOW_DAYS} days`;
+
+      // Table
+      el.tbody.innerHTML = "";
+      if (!list.length){
+        el.empty.style.display = "block";
+        return;
+      }
+      el.empty.style.display = "none";
+
+      for (const m of list){
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(m.account)}</td>
+          <td>${escapeHtml(String(m.id))}</td>
+          <td class="center">LV.${Number(m.level) || 1}</td>
+          <td class="center">${badge(m.__active)}</td>
+          <td class="right">${escapeHtml(m.created_at || "-")}</td>
+          <td class="right">${escapeHtml(m.last_active || "-")}</td>
+        `;
+        el.tbody.appendChild(tr);
+      }
+    }
+
+    function setView(view){
+      state.view = view;
+      el.pills.forEach(p => p.classList.toggle("active", p.dataset.view === view));
+      computeAndRender();
+    }
+
+    el.pills.forEach(p => p.addEventListener("click", () => setView(p.dataset.view)));
+
+    (async function init(){
+      state.members = await loadMembers();
+      computeAndRender();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Power • Investment Plans</title>
+  <meta name="description" content="Choose an investment plan, lock funds for a fixed term, and track your active positions and maturity date." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body class="lux-body lux-solid-bg lux-power-page">
+  <div class="lux-app lux-page lux-app--page">
+    <!-- Header -->
+    <header class="lux-head lux-head-tight" aria-label="Investment header">
+      <a class="lux-back" href="./index000.html" aria-label="Back to home">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      </a>
+      <div class="lux-head-title">
+        <div class="lux-h1">Power</div>
+        <div class="lux-h2">Investment plans</div>
+      </div>
+    </header>
+
+    <main class="lux-main">
+      <div class="container px-3">
+
+        <section class="lux-card lux-card-wide" aria-label="Balance summary">
+          <div class="lux-card-top">
+            <div class="lux-card-title">Account</div>
+            <span class="lux-badge">USDT</span>
+          </div>
+          <div class="lux-card-desc">Available balance and active locked funds.</div>
+          <div class="lux-mini-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="lux-mini">
+              <div class="lux-mini-label">Available</div>
+              <div class="lux-mini-value" id="powerAvail">0.00</div>
+            </div>
+            <div class="lux-mini">
+              <div class="lux-mini-label">Locked</div>
+              <div class="lux-mini-value" id="powerLocked">0.00</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Plan 1 -->
+        <section class="lux-card lux-card-wide mt-3" aria-label="15-day plan">
+          <div class="lux-card-top">
+            <div class="lux-card-title">Plan A • 15 Days</div>
+            <span class="lux-badge">2% daily</span>
+          </div>
+          <div class="lux-card-desc">
+            Minimum 250 USDT, maximum 1,000 USDT. Funds are locked for 15 days, then principal + profits are returned to your balance.
+          </div>
+          <div class="mt-3">
+            <div class="lux-field-label">Amount (USDT)</div>
+            <input type="number" id="plan1Amount" class="lux-input" placeholder="250.00" min="250" max="1000" step="0.01" />
+          </div>
+          <div class="mt-3">
+            <div class="lux-field-label">Estimated daily profit: <span id="plan1Daily">0.00</span> USDT</div>
+            <div class="lux-field-label">Estimated total profit: <span id="plan1Profit">0.00</span> USDT</div>
+            <div class="lux-field-label">Maturity value: <span id="plan1Total">0.00</span> USDT</div>
+          </div>
+          <div class="mt-3">
+            <button id="plan1InvestBtn" class="lux-btn-primary w-100" type="button">
+              <i class="fa-solid fa-lock" aria-hidden="true"></i>
+              Start Plan A
+            </button>
+          </div>
+        </section>
+
+        <!-- Plan 2 -->
+        <section class="lux-card lux-card-wide mt-3" aria-label="30-day plan">
+          <div class="lux-card-top">
+            <div class="lux-card-title">Plan B • 30 Days</div>
+            <span class="lux-badge">3% daily</span>
+          </div>
+          <div class="lux-card-desc">
+            Minimum 1,000 USDT, maximum 2,000 USDT. Funds are locked for 30 days, then principal + profits are returned to your balance.
+          </div>
+          <div class="mt-3">
+            <div class="lux-field-label">Amount (USDT)</div>
+            <input type="number" id="plan2Amount" class="lux-input" placeholder="1000.00" min="1000" max="2000" step="0.01" />
+          </div>
+          <div class="mt-3">
+            <div class="lux-field-label">Estimated daily profit: <span id="plan2Daily">0.00</span> USDT</div>
+            <div class="lux-field-label">Estimated total profit: <span id="plan2Profit">0.00</span> USDT</div>
+            <div class="lux-field-label">Maturity value: <span id="plan2Total">0.00</span> USDT</div>
+          </div>
+          <div class="mt-3">
+            <button id="plan2InvestBtn" class="lux-btn-primary w-100" type="button">
+              <i class="fa-solid fa-lock" aria-hidden="true"></i>
+              Start Plan B
+            </button>
+          </div>
+        </section>
+
+        <!-- Active positions -->
+        <section class="lux-card lux-card-wide mt-3" aria-label="Active investments">
+          <div class="lux-card-top">
+            <div class="lux-card-title">Active Investments</div>
+            <span class="lux-badge" id="posCount">0</span>
+          </div>
+          <div class="lux-card-desc">Positions are credited automatically when they mature (demo logic).</div>
+
+          <div id="positionsList" class="d-flex flex-column gap-2 mt-2"></div>
+          <div class="lux-card-desc mt-2" id="positionsEmpty" style="display:none;">No active positions yet.</div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Toast -->
+    <div class="lux-toast" id="luxToast" role="status" aria-live="polite" aria-atomic="true">
+      <span id="toastText">Done</span>
+    </div>
+  </div>
+
+  <script src="./power.js"></script>
+</body>
+</html>

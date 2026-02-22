@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Transfer</title>
+  <meta name="color-scheme" content="dark light" />
+  <style>
+    :root{
+      --bg: #070A0E;
+      --panel: rgba(255,255,255,.06);
+      --panel-2: rgba(255,255,255,.04);
+      --stroke: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.62);
+      --muted-2: rgba(255,255,255,.42);
+      --brand: #2FE6A3;
+      --brand-2: #26C58B;
+      --danger: #FF5C7A;
+      --shadow: 0 20px 50px rgba(0,0,0,.55);
+      --radius-xl: 22px;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --gap: 14px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--font);
+      color: var(--text);
+      background:
+        radial-gradient(900px 600px at 70% -10%, rgba(47,230,163,.14), transparent 60%),
+        radial-gradient(700px 500px at 10% 110%, rgba(80,140,255,.12), transparent 55%),
+        linear-gradient(180deg, #05070B, var(--bg));
+      display:flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 18px 14px;
+    }
+
+    .app{
+      width: min(620px, 100%);
+      display:flex;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .phone{
+      flex: 1 1 520px;
+      min-width: 0;
+      border-radius: 28px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .phone::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(500px 280px at 20% 0%, rgba(47,230,163,.12), transparent 60%),
+        radial-gradient(420px 240px at 85% 15%, rgba(255,255,255,.06), transparent 55%),
+        radial-gradient(520px 320px at 60% 120%, rgba(80,140,255,.10), transparent 60%);
+      pointer-events:none;
+      filter: blur(0px);
+    }
+
+    .content{ position:relative; }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 2px 2px 14px;
+    }
+    .icon-btn{
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .icon-btn:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.06); }
+    .icon-btn:active{ transform: translateY(0px) scale(.98); }
+
+    .title{
+      display:flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+    }
+    .title h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing: .4px;
+      font-weight: 750;
+      text-transform: lowercase;
+    }
+    .title span{
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted-2);
+    }
+
+    .card{
+      border-radius: var(--radius-xl);
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.10);
+      padding: 14px;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+    }
+
+    .stack{ display:flex; flex-direction: column; gap: var(--gap); }
+
+    .label{
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .2px;
+      margin: 2px 2px 8px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .hint{ color: var(--muted-2); font-size: 12px; }
+
+    .field{
+      border-radius: 18px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.10);
+      padding: 12px 12px;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      transition: border-color .12s ease, background .12s ease;
+    }
+    .field:focus-within{ border-color: rgba(47,230,163,.35); background: rgba(47,230,163,.04); }
+
+    select, input{
+      width: 100%;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 650;
+      letter-spacing: .2px;
+      padding: 2px 0;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    input::placeholder{ color: rgba(255,255,255,.28); font-weight: 600; }
+
+    .pill{
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.78);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .3px;
+      white-space: nowrap;
+    }
+
+    .btn{
+      width: 100%;
+      border: 0;
+      cursor: pointer;
+      border-radius: 22px;
+      padding: 16px 14px;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: .3px;
+      background: linear-gradient(180deg, rgba(47,230,163,.92), rgba(38,197,139,.92));
+      color: #062017;
+      box-shadow: 0 16px 34px rgba(47,230,163,.20);
+      transition: transform .12s ease, filter .12s ease, opacity .12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:hover{ transform: translateY(-1px); filter: saturate(1.05); }
+    .btn:active{ transform: translateY(0px) scale(.99); }
+    .btn[disabled]{ opacity: .48; cursor: not-allowed; filter: grayscale(.2); }
+
+    .ghost{
+      border-radius: 18px;
+      padding: 14px;
+      width: 100%;
+      border: 1px dashed rgba(255,255,255,.16);
+      background: rgba(255,255,255,.02);
+      color: rgba(255,255,255,.86);
+      font-weight: 800;
+      cursor: pointer;
+      transition: border-color .12s ease, background .12s ease, transform .12s ease;
+    }
+    .ghost:hover{ border-color: rgba(47,230,163,.35); background: rgba(47,230,163,.04); transform: translateY(-1px); }
+    .ghost:active{ transform: translateY(0px) scale(.99); }
+
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .subrow{
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .subrow b{ color: rgba(255,255,255,.80); font-weight: 800; }
+
+    .stats{
+      padding: 12px 14px;
+      border-radius: var(--radius-xl);
+      background: rgba(255,255,255,.035);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .stats .line{
+      display:flex;
+      justify-content: space-between;
+      padding: 10px 2px;
+      gap: 10px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      font-size: 14px;
+      color: rgba(255,255,255,.80);
+    }
+    .stats .line:first-child{ border-top: 0; }
+    .stats .k{ color: rgba(255,255,255,.70); font-weight: 650; }
+    .stats .v{ font-weight: 850; letter-spacing: .2px; }
+
+    .error{
+      display:none;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,92,122,.35);
+      background: rgba(255,92,122,.10);
+      color: rgba(255,255,255,.90);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .meta{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted-2);
+    }
+
+    .aside .card{ padding: 18px; }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      color: rgba(255,255,255,.80);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      width: fit-content;
+    }
+    .badge i{
+      width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      background: var(--brand);
+      box-shadow: 0 0 0 3px rgba(47,230,163,.15);
+    }
+
+    .aside h2{
+      margin: 6px 0 10px;
+      font-size: 18px;
+      letter-spacing: .2px;
+    }
+    .aside p{
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+    .aside ul{
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .aside li{ margin: 6px 0; }
+
+    .chev{
+      width: 0; height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 7px solid rgba(255,255,255,.55);
+      opacity: .8;
+      flex: 0 0 auto;
+    }
+
+    .divider{ height: 12px; }
+
+    @media (min-width: 980px){
+      body{ padding: 26px; }
+      .phone{ padding: 22px; }
+      .title h1{ font-size: 19px; }
+    }
+
+    @media (max-width: 420px){
+      .icon-btn{ width: 42px; height: 42px; border-radius: 14px; }
+      select, input{ font-size: 15px; }
+      .btn{ padding: 15px 14px; }
+      .phone{ border-radius: 26px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <section class="phone" aria-label="Transfer screen">
+      <div class="content">
+        <header>
+          <button class="icon-btn" type="button" id="backBtn" aria-label="Back">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" stroke="rgba(255,255,255,.85)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <div class="title">
+            <h1>transfer</h1>
+            <span>fast, simple, secure</span>
+          </div>
+
+          <button class="icon-btn" type="button" id="menuBtn" aria-label="More">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h16" stroke="rgba(255,255,255,.85)" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </header>
+
+        <div class="stack">
+          <div>
+            <div class="label">
+              <span>transfer currency</span>
+              <span class="hint" id="balanceHint">Available 0.00 USDT</span>
+            </div>
+            <div class="field" role="group" aria-label="Currency">
+              <select id="currency">
+                <option value="USDT" selected>USDT</option>
+                <option value="USDC">USDC</option>
+                <option value="DAI">DAI</option>
+              </select>
+              <span class="chev" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div>
+            <div class="label">
+              <span>transfer network</span>
+              <span class="hint">Select correct chain</span>
+            </div>
+            <div class="field" role="group" aria-label="Network">
+              <select id="network">
+                <option value="BEP-20" selected>BEP-20</option>
+                <option value="TRC-20">TRC-20</option>
+                <option value="ERC-20">ERC-20</option>
+                <option value="Polygon">Polygon</option>
+              </select>
+              <span class="chev" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div>
+            <div class="label">
+              <span>transfer address</span>
+              <span class="hint" id="addressCount">0 saved</span>
+            </div>
+            <div class="field" role="group" aria-label="Address">
+              <select id="address">
+                <option value="" selected disabled>Please select an address</option>
+              </select>
+              <span class="chev" aria-hidden="true"></span>
+            </div>
+            <div class="divider"></div>
+            <button class="ghost" type="button" id="addAddressBtn">Add address</button>
+          </div>
+
+          <div>
+            <div class="label">
+              <span>Quantity</span>
+              <span class="hint" id="minHint">Minimum 20 USDT</span>
+            </div>
+            <div class="field" role="group" aria-label="Quantity">
+              <input id="amount" inputmode="decimal" placeholder="Enter transferal Quantity" />
+              <span class="pill" id="unitPill">USDT</span>
+              <button class="pill" type="button" id="maxBtn" aria-label="Max">MAX</button>
+            </div>
+            <div class="subrow">
+              <span id="availableLine">Available <b>0.00</b> USDT</span>
+              <span id="minimumLine">Minimum <b>20</b> USDT</span>
+            </div>
+            <div class="error" id="errorBox" role="alert"></div>
+          </div>
+
+          <div class="stats" aria-label="Summary">
+            <div class="line">
+              <div class="k">Minimum transferal Quantity</div>
+              <div class="v" id="minValue">20 USDT</div>
+            </div>
+            <div class="line">
+              <div class="k">transferal Fee</div>
+              <div class="v" id="feeValue">0.00 USDT</div>
+            </div>
+            <div class="line">
+              <div class="k">Received Quantity</div>
+              <div class="v" id="receivedValue">0.00 USDT</div>
+            </div>
+          </div>
+
+          <button class="btn" id="transferBtn" type="button" disabled>transfer</button>
+
+          <div class="meta">
+            <span id="statusText">Ready</span>
+            <span>v1</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="addressDialog">
+    <form method="dialog" class="card" style="width:min(520px, 94vw); padding:18px; border-radius:22px; background: rgba(15,18,26,.98); border:1px solid rgba(255,255,255,.14);">
+      <div class="row" style="margin-bottom:12px;">
+        <div style="font-size:16px; font-weight:850;">Add address</div>
+        <button class="icon-btn" type="submit" aria-label="Close" style="width:40px;height:40px;border-radius:14px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" stroke="rgba(255,255,255,.85)" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="stack">
+        <div>
+          <div class="label"><span>Label</span><span class="hint">Example: Binance</span></div>
+          <div class="field"><input id="addrLabel" placeholder="Address label" /></div>
+        </div>
+        <div>
+          <div class="label"><span>Address</span><span class="hint">Paste destination</span></div>
+          <div class="field"><input id="addrValue" placeholder="Wallet address" /></div>
+        </div>
+
+        <div class="row">
+          <button class="btn" id="saveAddrBtn" value="default" style="flex:1;">Save</button>
+        </div>
+        <div class="hint" id="addrNote" style="text-align:center;">Stored in localStorage</div>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const state = {
+      balances: { USDT: 0.00, USDC: 125.50, DAI: 46.10 },
+      minimum: { USDT: 20, USDC: 20, DAI: 10 },
+      fee: {
+        "BEP-20": (amt) => Math.max(0.15, Math.min(1.50, amt * 0.003)),
+        "TRC-20": (amt) => Math.max(0.80, Math.min(3.50, amt * 0.006)),
+        "ERC-20": (amt) => Math.max(3.50, Math.min(12.00, amt * 0.012)),
+        "Polygon": (amt) => Math.max(0.05, Math.min(0.80, amt * 0.002))
+      }
+    };
+
+    const storageKey = "transfer_saved_addresses_v1";
+
+    function loadAddresses(){
+      try{
+        const raw = localStorage.getItem(storageKey);
+        const list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list : [];
+      }catch(e){
+        return [];
+      }
+    }
+
+    function saveAddresses(list){
+      localStorage.setItem(storageKey, JSON.stringify(list));
+    }
+
+    function format2(n){
+      const x = Number.isFinite(n) ? n : 0;
+      return x.toFixed(2);
+    }
+
+    function currentCurrency(){ return $("currency").value; }
+    function currentNetwork(){ return $("network").value; }
+
+    function updateHeader(){
+      const c = currentCurrency();
+      const bal = state.balances[c] ?? 0;
+      $("balanceHint").textContent = `Available ${format2(bal)} ${c}`;
+      $("unitPill").textContent = c;
+      const min = state.minimum[c] ?? 0;
+      $("minHint").textContent = `Minimum ${min} ${c}`;
+      $("availableLine").innerHTML = `Available <b>${format2(bal)}</b> ${c}`;
+      $("minimumLine").innerHTML = `Minimum <b>${min}</b> ${c}`;
+      $("minValue").textContent = `${min} ${c}`;
+    }
+
+    function populateAddresses(){
+      const list = loadAddresses();
+      const select = $("address");
+      const prev = select.value;
+      select.innerHTML = '<option value="" selected disabled>Please select an address</option>';
+      for(const item of list){
+        const opt = document.createElement("option");
+        opt.value = item.value;
+        opt.textContent = `${item.label} • ${item.value.slice(0,6)}…${item.value.slice(-4)}`;
+        select.appendChild(opt);
+      }
+      $("addressCount").textContent = `${list.length} saved`;
+      if(prev && list.some(x => x.value === prev)){
+        select.value = prev;
+      }
+    }
+
+    function parseAmount(){
+      const raw = $("amount").value.trim().replace(/,/g, ".");
+      const num = Number(raw);
+      return Number.isFinite(num) ? num : NaN;
+    }
+
+    function validate(){
+      const c = currentCurrency();
+      const n = currentNetwork();
+      const addr = $("address").value;
+      const bal = state.balances[c] ?? 0;
+      const min = state.minimum[c] ?? 0;
+
+      const amt = parseAmount();
+
+      let err = "";
+      if(!addr) err = "Select an address first.";
+      else if(!Number.isFinite(amt) || amt <= 0) err = "Enter a valid amount.";
+      else if(amt < min) err = `Amount must be at least ${min} ${c}.`;
+      else if(amt > bal) err = "Insufficient balance.";
+
+      const feeFn = state.fee[n] ?? ((x)=>0);
+      const fee = Number.isFinite(amt) ? feeFn(amt) : 0;
+      const recv = Math.max(0, (Number.isFinite(amt) ? amt : 0) - fee);
+
+      $("feeValue").textContent = `${format2(fee)} ${c}`;
+      $("receivedValue").textContent = `${format2(recv)} ${c}`;
+
+      const ok = err === "";
+      $("transferBtn").disabled = !ok;
+
+      const box = $("errorBox");
+      if(ok){
+        box.style.display = "none";
+        box.textContent = "";
+        $("statusText").textContent = "Ready";
+      }else{
+        box.style.display = "block";
+        box.textContent = err;
+        $("statusText").textContent = "Check details";
+      }
+      return ok;
+    }
+
+    function setMax(){
+      const c = currentCurrency();
+      const bal = state.balances[c] ?? 0;
+      $("amount").value = format2(bal);
+      validate();
+    }
+
+    function toast(text){
+      $("statusText").textContent = text;
+    }
+
+    function simulateTransfer(){
+      if(!validate()) return;
+      const c = currentCurrency();
+      const n = currentNetwork();
+      const amt = parseAmount();
+      const feeFn = state.fee[n] ?? ((x)=>0);
+      const fee = feeFn(amt);
+      const recv = Math.max(0, amt - fee);
+
+      $("transferBtn").disabled = true;
+      toast("Processing...");
+
+      setTimeout(()=>{
+        state.balances[c] = Math.max(0, (state.balances[c] ?? 0) - amt);
+        updateHeader();
+        $("amount").value = "";
+        $("feeValue").textContent = `0.00 ${c}`;
+        $("receivedValue").textContent = `0.00 ${c}`;
+        toast(`Sent ${format2(amt)} ${c} • Received ${format2(recv)} ${c}`);
+        validate();
+      }, 800);
+    }
+
+    function openAddressDialog(){
+      $("addrLabel").value = "";
+      $("addrValue").value = "";
+      $("addrNote").textContent = "Stored in localStorage";
+      $("addressDialog").showModal();
+      setTimeout(()=> $("addrLabel").focus(), 50);
+    }
+
+    function saveAddressFromDialog(){
+      const label = $("addrLabel").value.trim();
+      const value = $("addrValue").value.trim();
+      if(label.length < 2){
+        $("addrNote").textContent = "Label is too short.";
+        return;
+      }
+      if(value.length < 10){
+        $("addrNote").textContent = "Address looks too short.";
+        return;
+      }
+      const list = loadAddresses();
+      if(list.some(x => x.value === value)){
+        $("addrNote").textContent = "Address already exists.";
+        return;
+      }
+      list.unshift({ label, value, addedAt: Date.now() });
+      saveAddresses(list.slice(0, 25));
+      populateAddresses();
+      $("address").value = value;
+      $("addressDialog").close();
+      validate();
+      toast("Address saved");
+    }
+
+    function init(){
+      updateHeader();
+      populateAddresses();
+      validate();
+
+      $("currency").addEventListener("change", ()=>{ updateHeader(); validate(); });
+      $("network").addEventListener("change", ()=>{ validate(); });
+      $("address").addEventListener("change", ()=>{ validate(); });
+      $("amount").addEventListener("input", ()=>{ validate(); });
+
+      $("maxBtn").addEventListener("click", setMax);
+      $("transferBtn").addEventListener("click", simulateTransfer);
+      $("addAddressBtn").addEventListener("click", openAddressDialog);
+      $("saveAddrBtn").addEventListener("click", (e)=>{ e.preventDefault(); saveAddressFromDialog(); });
+
+      $("backBtn").addEventListener("click", ()=> toast("Back"));
+      $("menuBtn").addEventListener("click", ()=> toast("Menu"));
+
+      document.addEventListener("keydown", (e)=>{
+        if(e.key === "Enter" && document.activeElement === $("amount")){
+          e.preventDefault();
+          simulateTransfer();
+        }
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
