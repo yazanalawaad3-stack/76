@@ -4,7 +4,9 @@
   const toastEl = qs('#luxToast');
   const toastText = qs('#toastText');
   let toastTimer = null;
+
   function toast(msg) {
+    if (!toastEl || !toastText) return;
     toastText.textContent = msg;
     toastEl.classList.add('show');
     clearTimeout(toastTimer);
@@ -12,13 +14,14 @@
   }
 
   async function safeCopy(text) {
+    const value = String(text ?? '');
     try {
-      await navigator.clipboard.writeText(String(text));
+      await navigator.clipboard.writeText(value);
       return true;
     } catch {
       try {
         const ta = document.createElement('textarea');
-        ta.value = String(text);
+        ta.value = value;
         ta.setAttribute('readonly', '');
         ta.style.position = 'fixed';
         ta.style.top = '-1000px';
@@ -44,113 +47,59 @@
   }
 
   function buildInvite() {
-    // Feel free to change the path below to your real register page when backend is ready.
     const code = getUserId();
     const origin = window.location.origin || '';
-    const basePath = origin ? origin : 'https://example.com';
-    const link = `${basePath}/?ref=${encodeURIComponent(code)}`;
+    const base = origin || 'https://example.com';
+    const link = `${base}/?ref=${encodeURIComponent(code)}`;
 
-    qs('#inviteLinkText').textContent = link;
-    qs('#inviteCodeText').textContent = code;
+    const linkEl = qs('#inviteLinkText');
+    const codeEl = qs('#inviteCodeText');
+    if (linkEl) linkEl.textContent = link;
+    if (codeEl) codeEl.textContent = code;
 
     return { link, code };
-  }
-
-  // Modal
-  const modal = qs('#inviteModal');
-  const openBtn = qs('#openInviteModalBtn');
-  const closeBtns = [qs('#closeInviteModalBtn'), qs('#closeInviteModalBtn2')].filter(Boolean);
-
-  function openModal() {
-    modal.classList.add('show');
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeModal() {
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-  }
-
-  // Prevent "click-through" where the same click that closes the modal
-  // also triggers a click on elements behind it (e.g. back button/navigation).
-  function closeFromEvent(e) {
-    if (e) {
-      e.preventDefault?.();
-      e.stopPropagation?.();
-    }
-    // Defer close to the next tick to avoid retargeting issues on some browsers.
-    setTimeout(closeModal, 0);
   }
 
   function wire() {
     const invite = buildInvite();
 
-    openBtn?.addEventListener('click', openModal);
-    closeBtns.forEach((b) => {
-      // Stop propagation to avoid closing causing navigation behind the modal.
-      b.addEventListener('click', closeFromEvent);
-      b.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }, { passive: false });
-    });
-
-    // Close when clicking on the backdrop (outside the dialog), without click-through.
-    modal?.addEventListener('click', (e) => {
-      if (e.target === modal) closeFromEvent(e);
-    });
-
-    // Extra guard for some mobile browsers: prevent the backdrop pointerdown from
-    // interacting with elements behind the modal.
-    modal?.addEventListener('pointerdown', (e) => {
-      if (e.target === modal) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }, { passive: false });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
-    });
-
-    qs('#copyInviteLinkBtn')?.addEventListener('click', async () => {
+    qs('#copyInviteLinkBtn')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       const ok = await safeCopy(invite.link);
-      toast(ok ? 'Link copied ✅' : 'Copy failed');
+      toast(ok ? 'Link copied' : 'Copy failed');
     });
 
-    qs('#copyInviteCodeBtn')?.addEventListener('click', async () => {
+    qs('#copyInviteCodeBtn')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       const ok = await safeCopy(invite.code);
-      toast(ok ? 'Code copied ✅' : 'Copy failed');
+      toast(ok ? 'Code copied' : 'Copy failed');
     });
 
-    qs('#copyBothBtn')?.addEventListener('click', async () => {
-      const ok = await safeCopy(`${invite.link}\n${invite.code}`);
-      toast(ok ? 'Copied ✅' : 'Copy failed');
-    });
+    qs('#shareBtn')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    // Optional share API
-    qs('#shareBtn')?.addEventListener('click', async () => {
-      const payload = { title: 'Invitation', text: `My invite code: ${invite.code}`, url: invite.link };
+      const payload = {
+        title: 'Invitation',
+        text: `Invite code: ${invite.code}`,
+        url: invite.link,
+      };
+
       try {
         if (navigator.share) {
           await navigator.share(payload);
-          toast('Shared ✅');
-        } else {
-          const ok = await safeCopy(invite.link);
-          toast(ok ? 'Link copied ✅' : 'Share not supported');
+          toast('Shared');
+          return;
         }
       } catch {
-        // user canceled share: ignore
+        // user canceled share or share failed
       }
-    });
 
-    // Auto-open once when arriving from the dashboard
-    const onceKey = 'lux_invite_modal_once';
-    const seen = sessionStorage.getItem(onceKey);
-    if (!seen) {
-      sessionStorage.setItem(onceKey, '1');
-      openModal();
-    }
+      const ok = await safeCopy(`${invite.link}\n${invite.code}`);
+      toast(ok ? 'Copied' : 'Share not supported');
+    });
   }
 
   wire();
