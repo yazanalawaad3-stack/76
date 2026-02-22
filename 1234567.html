@@ -238,30 +238,81 @@
     }
   
     /* Robot (Lottie) */
+    .hero{
+      padding-right: 210px;
+      min-height: 190px;
+    }
     .hero-robot{
       position:absolute;
-      right:22px;
-      top:16px;
-      width:160px;
-      height:160px;
+      right:18px;
+      top:50%;
+      transform: translateY(-50%);
+      width:170px;
+      height:170px;
       display:flex;
       align-items:center;
       justify-content:center;
       pointer-events:none;
-      filter: drop-shadow(0 16px 28px rgba(0,0,0,.55));
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(120px 120px at 30% 28%, rgba(246,196,83,.10), transparent 60%),
+        radial-gradient(140px 140px at 78% 22%, rgba(96,165,250,.10), transparent 62%),
+        rgba(16,27,32,.35);
+      box-shadow: 0 22px 55px rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .hero-robot::before{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      background: radial-gradient(circle at 50% 50%, rgba(246,196,83,.18), transparent 55%);
+      filter: blur(10px);
+      opacity: .9;
+      pointer-events:none;
+    }
+    .hero-robot::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius: 18px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+      pointer-events:none;
     }
     .hero-robot .robot-inner{
       width:100%;
       height:100%;
+      transform: scale(1.12);
+      filter: drop-shadow(0 14px 24px rgba(0,0,0,.55));
+    }
+    @media (max-width: 680px){
+      .hero{ padding-right: 170px; }
+      .hero-robot{ width:140px; height:140px; right:14px; }
+      .hero-robot .robot-inner{ transform: scale(1.10); }
     }
     @media (max-width: 560px){
-      .hero-robot{ width:120px; height:120px; right:14px; top:14px; }
+      .hero{
+        padding-right: 16px;
+        min-height: unset;
+      }
+      .hero-robot{
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        align-self: flex-end;
+        margin-top: 8px;
+        width: 140px;
+        height: 140px;
+      }
     }
     @media (prefers-reduced-motion: reduce){
       .hero-robot{ display:none; }
     }
-
-  </style>
+</style>
 </head>
 <body>
   <header>
@@ -419,63 +470,39 @@
   </script>
 
   <!-- Robot animation: prefer local .lottie, fallback to local JSON -->
-  <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
   <script>
-    (function(){
+    (function () {
       var host = document.getElementById('heroRobot');
-      if(!host) return;
+      if (!host || !window.lottie) return;
 
-      function mountDotLottie(){
-        try{
-          var p = document.createElement('dotlottie-player');
-          p.setAttribute('src','assets/robot.lottie');
-          p.setAttribute('autoplay','');
-          p.setAttribute('loop','');
-          p.style.width = '100%';
-          p.style.height = '100%';
-          host.innerHTML = '';
-          host.appendChild(p);
-          return true;
-        }catch(e){
-          return false;
+      var anim = window.lottie.loadAnimation({
+        container: host,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: 'assets/robot.json',
+        rendererSettings: {
+          preserveAspectRatio: 'xMidYMid meet'
         }
-      }
+      });
 
-      function loadScript(src, cb){
-        var s = document.createElement('script');
-        s.src = src;
-        s.onload = cb;
-        s.onerror = cb;
-        document.head.appendChild(s);
-      }
+      // Premium micro-interaction: on CTA click, briefly boost speed then return to idle.
+      var btn = document.getElementById('runRecordBtn');
+      if (btn && anim) {
+        var idleSpeed = 0.85;
+        anim.setSpeed(idleSpeed);
 
-      function mountJsonFallback(){
-        loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js', function(){
-          if(!window.lottie) return;
-          host.innerHTML = '';
-          window.lottie.loadAnimation({
-            container: host,
-            renderer: 'svg',
-            loop: true,
-            autoplay: true,
-            path: 'assets/robot.json'
-          });
-        });
+        btn.addEventListener('click', function () {
+          try {
+            anim.setSpeed(1.25);
+            anim.goToAndPlay(0, true);
+            window.setTimeout(function () {
+              anim.setSpeed(idleSpeed);
+            }, 900);
+          } catch (e) {}
+        }, { passive: true });
       }
-
-      var ok = mountDotLottie();
-      if(!ok){
-        mountJsonFallback();
-        return;
-      }
-
-      // If custom element doesn't hydrate (very old browsers), fallback after a short delay.
-      setTimeout(function(){
-        var hasShadow = host.querySelector('dotlottie-player');
-        if(!hasShadow){
-          mountJsonFallback();
-        }
-      }, 900);
     })();
   </script>
 
