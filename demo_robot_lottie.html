@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Robot Lottie Demo</title>
+  <script src="https://unpkg.com/lottie-web/build/player/lottie.min.js"></script>
+  <style>
+    body{background:#0b0b0e;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;display:grid;place-items:center;min-height:100vh}
+    .wrap{display:flex;flex-direction:column;gap:14px;align-items:center}
+    #robot{width:320px;height:320px}
+    .btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+    button{background:#1b1b20;border:1px solid #333;color:#fff;padding:10px 14px;border-radius:12px;cursor:pointer}
+    button:hover{border-color:#ff6b6b}
+    .hint{opacity:.75;font-size:13px;text-align:center;max-width:420px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="robot"></div>
+    <div class="btns">
+      <button id="wave">Wave</button>
+      <button id="wink">Wink</button>
+      <button id="kiss">Kiss</button>
+      <button id="all">Play All</button>
+    </div>
+    <div class="hint">Place robot_lottie.json next to this HTML file, then open this file in a browser.</div>
+  </div>
+
+  <script>
+    const anim = lottie.loadAnimation({
+      container: document.getElementById("robot"),
+      renderer: "svg",
+      loop: false,
+      autoplay: true,
+      path: "./robot_lottie.json"
+    });
+
+    const seg = {
+      wave: [0, 60],
+      wink: [61, 95],
+      kiss: [96, 140],
+      all:  [0, 140]
+    };
+
+    function play(name){
+      anim.stop();
+      anim.playSegments(seg[name], true);
+    }
+
+    document.getElementById("wave").onclick = () => play("wave");
+    document.getElementById("wink").onclick = () => play("wink");
+    document.getElementById("kiss").onclick = () => play("kiss");
+    document.getElementById("all").onclick  = () => play("all");
+  </script>
+</body>
+</html>
