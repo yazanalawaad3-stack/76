@@ -2,131 +2,430 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Power • Investment Plans</title>
-  <meta name="description" content="Choose an investment plan, lock funds for a fixed term, and track your active positions and maturity date." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Investment Plans</title>
+  <style>
+    :root {
+      /* Match site reference style */
+      --bg: #05070b;
+      --panel: #0f1720;
+      --panel2: #0b1118;
+      --line: rgba(255,255,255,.08);
+      --muted: rgba(255,255,255,.68);
+      --text: rgba(255,255,255,.92);
+      --gold1: #f6c453;
+      --gold2: #f5e3a4;
+      --ok: #46e6a5;
+      --danger: #ff6b6b;
+      --shadow: 0 18px 45px rgba(0,0,0,.55);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(900px 420px at 20% 0%, rgba(246,196,83,.10), transparent 55%),
+        radial-gradient(700px 420px at 95% 12%, rgba(130,170,255,.10), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display:flex;
+      flex-direction:column;
+    }
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 50px;
+      padding: 0 14px;
+      background: rgba(5,7,11,.55);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+      font-weight: 750;
+      letter-spacing: .3px;
+    }
+    header .back-btn{
+      position:absolute;
+      left:14px;
+      color: var(--gold1);
+      font-size: 20px;
+      text-decoration:none;
+    }
 
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    main{
+      width: min(980px, 100%);
+      margin: 0 auto;
+      padding: 16px 12px calc(30px + 60px);
+      flex: 1;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+    }
 
-  <!-- Font Awesome Icons -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    .hero{
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(700px 200px at 12% 18%, rgba(246,196,83,.16), transparent 60%),
+        radial-gradient(600px 220px at 92% 20%, rgba(96,165,250,.12), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+    }
+    .hero h2{
+      font-size: 1.2rem;
+      font-weight: 850;
+    }
+    .hero p{
+      font-size: .92rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      width: fit-content;
+      font-size: .75rem;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.28);
+      color: var(--muted);
+    }
+    .pill .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: linear-gradient(90deg, var(--gold1), var(--gold2));
+      box-shadow: 0 0 0 4px rgba(246,196,83,.10);
+    }
 
-  <link rel="stylesheet" href="./styles.css" />
+    .plan-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .plan-card{
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: rgba(16,27,32,.62);
+      padding: 16px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      box-shadow: var(--shadow);
+      height: 100%;
+    }
+    .plan-card header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
+    }
+    .plan-card .label{
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .status{
+      font-size: .75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.28);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+    .status.fixed{
+      border-color: rgba(246,196,83,.35);
+      background: rgba(246,196,83,.10);
+      color: rgba(246,196,83,.95);
+    }
+
+    .details{
+      font-size: .85rem;
+      line-height: 1.55;
+      color: var(--muted);
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+    }
+    .details b{color: rgba(255,255,255,.90); font-weight: 750;}
+    .kv{
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(16,27,32,.66);
+    }
+    .kv span:first-child{color: var(--muted); font-size: .8rem;}
+    .kv span:last-child{color: rgba(255,255,255,.92); font-weight: 800; font-size: .85rem;}
+
+    .btn-row{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      margin-top:auto;
+    }
+    .btn{
+      flex: 1 1 170px;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: .85rem;
+      font-weight: 800;
+      color: rgba(0,0,0,.92);
+      cursor:pointer;
+      text-decoration:none;
+      text-align:center;
+      background: linear-gradient(90deg, var(--gold1), var(--gold2));
+      transition: transform .12s ease, filter .12s ease;
+      min-height: 44px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .btn:active{transform: scale(.98); filter: brightness(1.05);}
+    .btn.secondary{
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 750;
+    }
+
+    .section{
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: rgba(16,27,32,.62);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+    .section h3{
+      font-size: 1.05rem;
+      font-weight: 850;
+      margin-bottom: 8px;
+    }
+    .section p{
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .section h4{
+      font-size: .95rem;
+      font-weight: 850;
+      margin: 12px 0 6px;
+      color: rgba(255,255,255,.90);
+    }
+    .section ul{
+      margin: 8px 0 0 18px;
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.55;
+    }
+    .section li{margin: 6px 0;}
+
+    details{
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(0,0,0,.28);
+      padding: 12px 14px;
+      margin-top: 10px;
+    }
+    details summary{
+      cursor:pointer;
+      font-weight: 850;
+      color: rgba(255,255,255,.92);
+      font-size: .92rem;
+      outline:none;
+    }
+    details p{margin-top:10px;margin-bottom:0;}
+
+    footer{
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: rgba(16,27,32,.62);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      color: var(--muted);
+      font-size: .85rem;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 600px){
+      header{font-size:.95rem}
+      .hero h2{font-size: 1.05rem}
+    }
+  </style>
 </head>
+<body>
+  <header>
+    <a href="#" class="back-btn" aria-label="Back">&#x2190;</a>
+    Investment Plans
+  </header>
 
-<body class="lux-body lux-solid-bg lux-power-page">
-  <div class="lux-app lux-page lux-app--page">
-    <!-- Header -->
-    <header class="lux-head lux-head-tight" aria-label="Investment header">
-      <a class="lux-back" href="./index000.html" aria-label="Back to home">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-      </a>
-      <div class="lux-head-title">
-        <div class="lux-h1">Power</div>
-        <div class="lux-h2">Investment plans</div>
-      </div>
-    </header>
+  <main>
+    <section class="hero">
+      <div class="pill"><span class="dot"></span><span>Daily cycle reference: Europe/Athens</span></div>
+      <h2>Smart Investment, Locked Term</h2>
+      <p>
+        Choose a plan that matches your goals. Your funds are locked for the full plan duration, returns are calculated daily,
+        and the total (principal + profit) is released at the end of the term.
+      </p>
+    </section>
 
-    <main class="lux-main">
-      <div class="container px-3">
+    <section class="plan-grid" aria-label="Investment plans">
+      <article class="plan-card">
+        <header>
+          <div class="label">Plan 1 — Basic</div>
+          <div class="status">2% – 3% / day</div>
+        </header>
 
-        <section class="lux-card lux-card-wide" aria-label="Balance summary">
-          <div class="lux-card-top">
-            <div class="lux-card-title">Account</div>
-            <span class="lux-badge">USDT</span>
-          </div>
-          <div class="lux-card-desc">Available balance and active locked funds.</div>
-          <div class="lux-mini-grid" style="grid-template-columns: 1fr 1fr;">
-            <div class="lux-mini">
-              <div class="lux-mini-label">Available</div>
-              <div class="lux-mini-value" id="powerAvail">0.00</div>
-            </div>
-            <div class="lux-mini">
-              <div class="lux-mini-label">Locked</div>
-              <div class="lux-mini-value" id="powerLocked">0.00</div>
-            </div>
-          </div>
-        </section>
+        <div class="kv"><span>Min / Max</span><span>1000 – 2000 USDT</span></div>
+        <div class="kv"><span>Duration</span><span>30 days (locked)</span></div>
+        <div class="kv"><span>Profit credit</span><span>Daily accrual (locked)</span></div>
+        <div class="kv"><span>Release</span><span>Principal + profit at end</span></div>
 
-        <!-- Plan 1 -->
-        <section class="lux-card lux-card-wide mt-3" aria-label="15-day plan">
-          <div class="lux-card-top">
-            <div class="lux-card-title">Plan A • 15 Days</div>
-            <span class="lux-badge">2% daily</span>
-          </div>
-          <div class="lux-card-desc">
-            Minimum 250 USDT, maximum 1,000 USDT. Funds are locked for 15 days, then principal + profits are returned to your balance.
-          </div>
-          <div class="mt-3">
-            <div class="lux-field-label">Amount (USDT)</div>
-            <input type="number" id="plan1Amount" class="lux-input" placeholder="250.00" min="250" max="1000" step="0.01" />
-          </div>
-          <div class="mt-3">
-            <div class="lux-field-label">Estimated daily profit: <span id="plan1Daily">0.00</span> USDT</div>
-            <div class="lux-field-label">Estimated total profit: <span id="plan1Profit">0.00</span> USDT</div>
-            <div class="lux-field-label">Maturity value: <span id="plan1Total">0.00</span> USDT</div>
-          </div>
-          <div class="mt-3">
-            <button id="plan1InvestBtn" class="lux-btn-primary w-100" type="button">
-              <i class="fa-solid fa-lock" aria-hidden="true"></i>
-              Start Plan A
-            </button>
-          </div>
-        </section>
+        <div class="details">
+          Designed for first-time investors who want a clear, term-based plan with automated operation.
+        </div>
 
-        <!-- Plan 2 -->
-        <section class="lux-card lux-card-wide mt-3" aria-label="30-day plan">
-          <div class="lux-card-top">
-            <div class="lux-card-title">Plan B • 30 Days</div>
-            <span class="lux-badge">3% daily</span>
-          </div>
-          <div class="lux-card-desc">
-            Minimum 1,000 USDT, maximum 2,000 USDT. Funds are locked for 30 days, then principal + profits are returned to your balance.
-          </div>
-          <div class="mt-3">
-            <div class="lux-field-label">Amount (USDT)</div>
-            <input type="number" id="plan2Amount" class="lux-input" placeholder="1000.00" min="1000" max="2000" step="0.01" />
-          </div>
-          <div class="mt-3">
-            <div class="lux-field-label">Estimated daily profit: <span id="plan2Daily">0.00</span> USDT</div>
-            <div class="lux-field-label">Estimated total profit: <span id="plan2Profit">0.00</span> USDT</div>
-            <div class="lux-field-label">Maturity value: <span id="plan2Total">0.00</span> USDT</div>
-          </div>
-          <div class="mt-3">
-            <button id="plan2InvestBtn" class="lux-btn-primary w-100" type="button">
-              <i class="fa-solid fa-lock" aria-hidden="true"></i>
-              Start Plan B
-            </button>
-          </div>
-        </section>
+        <div class="btn-row">
+          <a class="btn" href="#" onclick="alert('Connect this button to your investment flow.');return false;">Start Plan 1</a>
+          <a class="btn secondary" href="#how">How it works</a>
+        </div>
+      </article>
 
-        <!-- Active positions -->
-        <section class="lux-card lux-card-wide mt-3" aria-label="Active investments">
-          <div class="lux-card-top">
-            <div class="lux-card-title">Active Investments</div>
-            <span class="lux-badge" id="posCount">0</span>
-          </div>
-          <div class="lux-card-desc">Positions are credited automatically when they mature (demo logic).</div>
+      <article class="plan-card">
+        <header>
+          <div class="label">Plan 2 — Advanced</div>
+          <div class="status">2.61% – 3.30% / day</div>
+        </header>
 
-          <div id="positionsList" class="d-flex flex-column gap-2 mt-2"></div>
-          <div class="lux-card-desc mt-2" id="positionsEmpty" style="display:none;">No active positions yet.</div>
-        </section>
+        <div class="kv"><span>Min / Max</span><span>2000 – 4000 USDT</span></div>
+        <div class="kv"><span>Duration</span><span>30 days (locked)</span></div>
+        <div class="kv"><span>Profit credit</span><span>Daily accrual (locked)</span></div>
+        <div class="kv"><span>Release</span><span>Principal + profit at end</span></div>
 
-      </div>
-    </main>
+        <div class="details">
+          A larger capital range enables broader diversification and more efficient liquidity management.
+        </div>
 
-    <!-- Toast -->
-    <div class="lux-toast" id="luxToast" role="status" aria-live="polite" aria-atomic="true">
-      <span id="toastText">Done</span>
-    </div>
-  </div>
+        <div class="btn-row">
+          <a class="btn" href="#" onclick="alert('Connect this button to your investment flow.');return false;">Start Plan 2</a>
+          <a class="btn secondary" href="#how">How it works</a>
+        </div>
+      </article>
 
-  <script src="./power.js"></script>
+      <article class="plan-card">
+        <header>
+          <div class="label">Plan 3 — Professional</div>
+          <div class="status fixed">Fixed 4% / day</div>
+        </header>
+
+        <div class="kv"><span>Min / Max</span><span>5000 – 7000 USDT</span></div>
+        <div class="kv"><span>Duration</span><span>30 days (locked)</span></div>
+        <div class="kv"><span>Profit credit</span><span>Daily accrual (locked)</span></div>
+        <div class="kv"><span>Release</span><span>Principal + profit at end</span></div>
+
+        <div class="details">
+          Limited-capacity tier with prioritized allocation and tighter execution paths to maintain a consistent daily profile.
+        </div>
+
+        <div class="btn-row">
+          <a class="btn" href="#" onclick="alert('Connect this button to your investment flow.');return false;">Start Plan 3</a>
+          <a class="btn secondary" href="#how">How it works</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="section" id="how" aria-label="How the investment system works">
+      <div class="pill"><span class="dot"></span><span>How the Investment System Works</span></div>
+
+      <h3>How funds are operated within investment plans</h3>
+      <p>
+        Once an investment starts, the full amount is locked for the plan duration (30 days). The locked capital is routed into an automated
+        operating framework designed for capital and liquidity management.
+      </p>
+      <p>
+        The operation is not driven by manual daily decisions. It follows an automated system built around three core functions:
+      </p>
+
+      <h4>1) Data analysis</h4>
+      <p>
+        The system continuously monitors market data such as price movement, liquidity, volatility, spreads, and trading activity, then evaluates
+        opportunities against fixed criteria.
+      </p>
+
+      <h4>2) Strategy execution</h4>
+      <p>
+        When conditions match predefined rules, the system executes operations automatically using multiple strategy paths, including:
+      </p>
+      <ul>
+        <li>Short-term liquidity operations: deploying a portion of capital into faster, lower-risk opportunities.</li>
+        <li>Diversification across strategies: distributing capital across multiple paths to avoid reliance on a single source of performance.</li>
+        <li>Scaled execution: staged entries and exits instead of deploying the full amount at once to reduce the impact of fluctuations.</li>
+      </ul>
+
+      <h4>3) Risk management</h4>
+      <p>
+        The system applies automated protection rules such as staged allocation, volatility-based operation limits, temporary slowdowns or pauses
+        during unfavorable conditions, and liquidity rebalancing between strategies based on performance.
+      </p>
+
+      <h4>How profit is generated</h4>
+      <p>
+        Returns are calculated daily according to the selected plan rate. The daily return is credited to the investment balance (locked amount) as
+        a daily accrual. At the end of the term, the full locked principal plus the accumulated profit is released back to your balance.
+      </p>
+
+      <h4>Why funds are locked for 30 days</h4>
+      <p>
+        The lock is essential to operational stability. It prevents sudden capital exits during active operation, supports strategies that require a
+        defined time window, and improves liquidity planning to reduce operational risk.
+      </p>
+
+      <details>
+        <summary>How are daily returns calculated?</summary>
+        <p>
+          Returns are calculated once per day using the platform’s daily cycle reference and are reflected in your investment progress. When the
+          plan ends, the final total is released to your available balance.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why do return rates differ between plans?</summary>
+        <p>
+          Larger investment ranges can support broader diversification, tighter execution, and improved operational efficiency. This is why higher
+          tiers can offer higher target ranges or a fixed profile depending on the plan rules.
+        </p>
+      </details>
+
+      <details>
+        <summary>Simple example</summary>
+        <p>
+          If you invest 1000 USDT on a plan with a 2% daily return, the daily profit is 20 USDT. Over 30 days, that is 600 USDT in profit, and the
+          total released at the end is 1600 USDT (principal + profit).
+        </p>
+      </details>
+    </section>
+
+    <footer>
+      Funds are locked for the full plan duration. Daily profit calculations follow the plan rules and are applied once per day using the platform’s
+      daily cycle reference. Connect the “Start” buttons to your deposit and investment confirmation flow.
+    </footer>
+  </main>
 </body>
 </html>
