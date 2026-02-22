@@ -268,6 +268,74 @@
       header{font-size:.95rem}
       .hero h2{font-size: 1.05rem}
     }
+  
+    /* Added: account + amount input (minimal, keeps original layout) */
+    .account-grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    @media (min-width: 860px){
+      .account-grid{grid-template-columns: 1fr 1fr;}
+    }
+    .mini{
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.28);
+      padding: 12px 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+    }
+    .mini .k{color: rgba(255,255,255,.55); font-size: 13px; font-weight: 750;}
+    .mini .v{font-size: 18px; font-weight: 950;}
+
+    .field{margin-top: 10px;}
+    .field label{
+      display:block;
+      color: rgba(255,255,255,.55);
+      font-weight: 850;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .amount-input{
+      width:100%;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.28);
+      color: var(--text);
+      padding: 14px 14px;
+      font-size: 16px;
+      outline:none;
+      min-height: 48px;
+    }
+    .amount-input:focus{
+      border-color: rgba(246,196,83,.35);
+      box-shadow: 0 0 0 4px rgba(246,196,83,.10);
+    }
+    .metrics{
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .metric{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+    .metric b{color: rgba(255,255,255,.92); font-weight: 950;}
+    .error{
+      display:none;
+      margin-top: 8px;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 850;
+    }
+
   </style>
 </head>
 <body>
@@ -286,7 +354,24 @@
       </p>
     </section>
 
-    <section class="plan-grid" aria-label="Investment plans">
+    
+
+    <section class="section" aria-label="Account">
+      <h3 style="margin:0 0 6px;">Account</h3>
+      <p style="margin:0;color:var(--muted);font-size:.92rem;line-height:1.55;">Available balance and active locked funds.</p>
+      <div class="account-grid">
+        <div class="mini">
+          <div class="k">Available</div>
+          <div class="v" id="availableView">0.00 USDT</div>
+        </div>
+        <div class="mini">
+          <div class="k">Locked</div>
+          <div class="v" id="lockedView">0.00 USDT</div>
+        </div>
+      </div>
+    </section>
+
+<section class="plan-grid" aria-label="Investment plans">
       <article class="plan-card">
         <header>
           <div class="label">Plan 1 — Basic</div>
@@ -297,6 +382,20 @@
         <div class="kv"><span>Duration</span><span>30 days (locked)</span></div>
         <div class="kv"><span>Profit credit</span><span>Daily accrual (locked)</span></div>
         <div class="kv"><span>Release</span><span>Principal + profit at end</span></div>
+
+
+        <div class="field">
+          <label for="amount_P1">Amount (USDT)</label>
+          <input id="amount_P1" class="amount-input" type="number" inputmode="decimal"
+                 placeholder="1000.00" min="1000" max="2000" step="0.01" />
+          <div class="error" id="error_P1">Amount must be between 1,000 and 2,000 USDT.</div>
+        </div>
+
+        <div class="metrics" aria-label="Estimates">
+          <div class="metric"><span>Estimated daily profit</span><b id="daily_P1">0.00 USDT</b></div>
+          <div class="metric"><span>Estimated total profit</span><b id="total_P1">0.00 USDT</b></div>
+          <div class="metric"><span>Maturity value</span><b id="maturity_P1">0.00 USDT</b></div>
+        </div>
 
         <div class="details">
           Designed for first-time investors who want a clear, term-based plan with automated operation.
@@ -319,6 +418,20 @@
         <div class="kv"><span>Profit credit</span><span>Daily accrual (locked)</span></div>
         <div class="kv"><span>Release</span><span>Principal + profit at end</span></div>
 
+
+        <div class="field">
+          <label for="amount_P2">Amount (USDT)</label>
+          <input id="amount_P2" class="amount-input" type="number" inputmode="decimal"
+                 placeholder="2000.00" min="2000" max="4000" step="0.01" />
+          <div class="error" id="error_P2">Amount must be between 2,000 and 4,000 USDT.</div>
+        </div>
+
+        <div class="metrics" aria-label="Estimates">
+          <div class="metric"><span>Estimated daily profit</span><b id="daily_P2">0.00 USDT</b></div>
+          <div class="metric"><span>Estimated total profit</span><b id="total_P2">0.00 USDT</b></div>
+          <div class="metric"><span>Maturity value</span><b id="maturity_P2">0.00 USDT</b></div>
+        </div>
+
         <div class="details">
           A larger capital range enables broader diversification and more efficient liquidity management.
         </div>
@@ -339,6 +452,20 @@
         <div class="kv"><span>Duration</span><span>30 days (locked)</span></div>
         <div class="kv"><span>Profit credit</span><span>Daily accrual (locked)</span></div>
         <div class="kv"><span>Release</span><span>Principal + profit at end</span></div>
+
+
+        <div class="field">
+          <label for="amount_P3">Amount (USDT)</label>
+          <input id="amount_P3" class="amount-input" type="number" inputmode="decimal"
+                 placeholder="5000.00" min="5000" max="7000" step="0.01" />
+          <div class="error" id="error_P3">Amount must be between 5,000 and 7,000 USDT.</div>
+        </div>
+
+        <div class="metrics" aria-label="Estimates">
+          <div class="metric"><span>Estimated daily profit</span><b id="daily_P3">0.00 USDT</b></div>
+          <div class="metric"><span>Estimated total profit</span><b id="total_P3">0.00 USDT</b></div>
+          <div class="metric"><span>Maturity value</span><b id="maturity_P3">0.00 USDT</b></div>
+        </div>
 
         <div class="details">
           Limited-capacity tier with prioritized allocation and tighter execution paths to maintain a consistent daily profile.
@@ -427,5 +554,97 @@
       daily cycle reference. Connect the “Start” buttons to your deposit and investment confirmation flow.
     </footer>
   </main>
+
+  <script>
+    // Demo account values - replace with real values from your backend
+    const account = { available: 0.00, locked: 0.00, currency: "USDT" };
+
+    // Plan config for estimates and validation
+    const plans = {
+      P1: { min: 1000, max: 2000, days: 30, dailyRateLow: 0.02 },
+      P2: { min: 2000, max: 4000, days: 30, dailyRateLow: 0.0261 },
+      P3: { min: 5000, max: 7000, days: 30, dailyRateLow: 0.04 }
+    };
+
+    function fmt(n){
+      const v = Number.isFinite(n) ? n : 0;
+      return v.toFixed(2) + " " + account.currency;
+    }
+
+    function setAccountUI(){
+      const a = document.getElementById("availableView");
+      const l = document.getElementById("lockedView");
+      if (a) a.textContent = fmt(account.available);
+      if (l) l.textContent = fmt(account.locked);
+    }
+
+    function calc(planKey, raw){
+      const p = plans[planKey];
+      const amount = Number(raw || 0);
+      const daily = amount * p.dailyRateLow;
+      const total = daily * p.days;
+      const maturity = amount + total;
+      return { amount, daily, total, maturity };
+    }
+
+    function validate(planKey, amount){
+      const p = plans[planKey];
+      return amount >= p.min && amount <= p.max;
+    }
+
+    function updateUI(planKey){
+      const input = document.getElementById("amount_" + planKey);
+      const err = document.getElementById("error_" + planKey);
+      const dailyEl = document.getElementById("daily_" + planKey);
+      const totalEl = document.getElementById("total_" + planKey);
+      const maturityEl = document.getElementById("maturity_" + planKey);
+
+      if (!input) return;
+
+      const { amount, daily, total, maturity } = calc(planKey, input.value);
+      if (dailyEl) dailyEl.textContent = fmt(daily);
+      if (totalEl) totalEl.textContent = fmt(total);
+      if (maturityEl) maturityEl.textContent = fmt(maturity);
+
+      if (!input.value){
+        if (err) err.style.display = "none";
+        return;
+      }
+      if (err) err.style.display = validate(planKey, amount) ? "none" : "block";
+    }
+
+    function startPlan(planKey){
+      const input = document.getElementById("amount_" + planKey);
+      const amount = Number(input?.value || 0);
+
+      if (!validate(planKey, amount)){
+        alert("Invalid amount. Please check the plan limits.");
+        return;
+      }
+      if (amount > account.available){
+        alert("Insufficient available balance.");
+        return;
+      }
+
+      // Demo behavior - replace with your real backend call
+      account.available -= amount;
+      account.locked += amount;
+      setAccountUI();
+
+      if (input) input.value = "";
+      updateUI(planKey);
+
+      alert("Plan started (demo). Connect this to your backend.");
+    }
+
+    // Init
+    setAccountUI();
+    ["P1","P2","P3"].forEach(k => {
+      const input = document.getElementById("amount_" + k);
+      if (input) input.addEventListener("input", () => updateUI(k));
+      updateUI(k);
+    });
+  </script>
+
 </body>
 </html>
