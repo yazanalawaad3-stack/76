@@ -72,14 +72,43 @@
     document.body.style.overflow = '';
   }
 
+  // Prevent "click-through" where the same click that closes the modal
+  // also triggers a click on elements behind it (e.g. back button/navigation).
+  function closeFromEvent(e) {
+    if (e) {
+      e.preventDefault?.();
+      e.stopPropagation?.();
+    }
+    // Defer close to the next tick to avoid retargeting issues on some browsers.
+    setTimeout(closeModal, 0);
+  }
+
   function wire() {
     const invite = buildInvite();
 
     openBtn?.addEventListener('click', openModal);
-    closeBtns.forEach(b => b.addEventListener('click', closeModal));
-    modal?.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
+    closeBtns.forEach((b) => {
+      // Stop propagation to avoid closing causing navigation behind the modal.
+      b.addEventListener('click', closeFromEvent);
+      b.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }, { passive: false });
     });
+
+    // Close when clicking on the backdrop (outside the dialog), without click-through.
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeFromEvent(e);
+    });
+
+    // Extra guard for some mobile browsers: prevent the backdrop pointerdown from
+    // interacting with elements behind the modal.
+    modal?.addEventListener('pointerdown', (e) => {
+      if (e.target === modal) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, { passive: false });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
     });
