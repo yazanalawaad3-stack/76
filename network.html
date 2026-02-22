@@ -235,6 +235,28 @@
       .ssValue{ font-size: 26px; }
     }
 
+
+/* Generation label highlight */
+.gen-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.gen-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  background: rgba(255, 193, 7, 0.14);
+  border: 1px solid rgba(255, 193, 7, 0.35);
+  color: #ffc107;
+  box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.08) inset;
+}
+
 </style>
 </head>
 <body>
@@ -265,7 +287,7 @@
 
 <div class="gen-section" aria-label="Generation data">
   <div class="gen-card">
-    <div class="gen-title">Generation 1 Data</div>
+    <div class="gen-title gen-title"><span class="gen-badge">Gen 1</span><span>Generation 1 Data</span></div>
     <div class="gen-grid">
       <div class="gen-col">
         <div class="gen-label">Team Income</div>
@@ -287,7 +309,7 @@
   </div>
 
   <div class="gen-card">
-    <div class="gen-title">Generation 2 Data</div>
+    <div class="gen-title gen-title"><span class="gen-badge">Gen 2</span><span>Generation 2 Data</span></div>
     <div class="gen-grid">
       <div class="gen-col">
         <div class="gen-label">Team Income</div>
@@ -309,7 +331,7 @@
   </div>
 
   <div class="gen-card">
-    <div class="gen-title">Generation 3 Data</div>
+    <div class="gen-title gen-title"><span class="gen-badge">Gen 3</span><span>Generation 3 Data</span></div>
     <div class="gen-grid">
       <div class="gen-col">
         <div class="gen-label">Team Income</div>
@@ -328,6 +350,28 @@
         <div class="gen-value accent" id="g3_pct">2.00%</div>
       </div>
     </div>
+
+  <div class="gen-card">
+    <div class="gen-title gen-title"><span class="gen-badge">Gen 4</span><span>Generation 4 Data</span></div>
+    <div class="gen-grid">
+      <div class="gen-col">
+        <div class="gen-label">Team Income</div>
+        <div class="gen-value" id="g4_income">0.00</div>
+      </div>
+      <div class="gen-col">
+        <div class="gen-label">Valid Member</div>
+        <div class="gen-value" id="g4_valid">0</div>
+      </div>
+      <div class="gen-col">
+        <div class="gen-label">Registered Member</div>
+        <div class="gen-value" id="g4_registered">0</div>
+      </div>
+      <div class="gen-col">
+        <div class="gen-label">Team Commission</div>
+        <div class="gen-value accent" id="g4_pct">1.00%</div>
+      </div>
+    </div>
+  </div>
   </div>
 </div>
         
@@ -419,9 +463,9 @@
         return Number.isFinite(n) ? n : 0;
       };
 
-      const income = readNum("g1_income") + readNum("g2_income") + readNum("g3_income");
-      const valid = readNum("g1_valid") + readNum("g2_valid") + readNum("g3_valid");
-      const registered = readNum("g1_registered") + readNum("g2_registered") + readNum("g3_registered");
+      const income = readNum("g1_income") + readNum("g2_income") + readNum("g3_income") + readNum("g4_income");
+      const valid = readNum("g1_valid") + readNum("g2_valid") + readNum("g3_valid") + readNum("g4_valid");
+      const registered = readNum("g1_registered") + readNum("g2_registered") + readNum("g3_registered") + readNum("g4_registered");
 
       // Summary values are derived from Generation 1/2/3
 const teamSize = Math.round(registered);
