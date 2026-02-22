@@ -68,6 +68,7 @@
     }
     /* Hero summarising daily stats */
     .hero {
+      position: relative;
       border-radius: 18px;
       border: 1px solid var(--line);
       background:
@@ -235,7 +236,74 @@
         font-size: 0.9rem;
       }
     }
-  </style>
+  
+    /* Robot (Lottie) */
+    /* Robot (Lottie) - centered premium hero */
+    .hero{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 22px;
+      min-height: 210px;
+      gap: 0;
+    }
+    .hero-robot{
+      position: relative;
+      width: 190px;
+      height: 190px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(140px 140px at 30% 28%, rgba(246,196,83,.10), transparent 60%),
+        radial-gradient(160px 160px at 78% 22%, rgba(96,165,250,.10), transparent 62%),
+        rgba(16,27,32,.28);
+      box-shadow: 0 22px 55px rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .hero-robot::before{
+      content:"";
+      position:absolute;
+      inset:-44px;
+      background: radial-gradient(circle at 50% 50%, rgba(246,196,83,.20), transparent 55%);
+      filter: blur(12px);
+      opacity: .95;
+      pointer-events:none;
+    }
+    .hero-robot::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius: 22px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+      pointer-events:none;
+    }
+    .hero-robot .robot-inner{
+      width:100%;
+      height:100%;
+      transform: scale(1.16);
+      filter: drop-shadow(0 14px 24px rgba(0,0,0,.55));
+    }
+    @media (max-width: 680px){
+      .hero{ min-height: 190px; }
+      .hero-robot{ width: 165px; height: 165px; }
+      .hero-robot .robot-inner{ transform: scale(1.14); }
+    }
+    @media (max-width: 420px){
+      .hero{ min-height: 175px; padding: 18px; }
+      .hero-robot{ width: 150px; height: 150px; }
+    }
+    @media (prefers-reduced-motion: reduce){
+      .hero-robot{ display:none; }
+    }
+
+</style>
 </head>
 <body>
   <header>
@@ -245,12 +313,7 @@
   <main>
     <!-- Hero section summarising daily usage and progress --> 
     <section class="hero">
-      <h2>Daily Usage</h2>
-      <p>Track your AI power consumption and progress.</p>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
-      <button id="runRecordBtn">Run Record</button>
+      <div class="hero-robot hero-robot-center" aria-hidden="true"><div class="robot-inner" id="heroRobot"></div></div>
     </section>
     <!-- Small stats overview -->
     <section class="stats">
@@ -369,26 +432,25 @@
       </div>
     </section>
   </main>
-  <script>
-    // Animate progress bar when clicking the run record button
-    const runBtn = document.getElementById('runRecordBtn');
-    const bar = document.getElementById('progressBar');
-    runBtn.addEventListener('click', () => {
-      let progress = 0;
-      bar.style.width = '0%';
-      // Clear any existing interval
-      if (window.levelInterval) clearInterval(window.levelInterval);
-      window.levelInterval = setInterval(() => {
-        progress += 4;
-        bar.style.width = progress + '%';
-        if (progress >= 100) {
-          clearInterval(window.levelInterval);
-          setTimeout(() => {
-            bar.style.width = '0%';
-          }, 600);
-        }
-      }, 150);
-    });
+<!-- Robot animation: prefer local .lottie, fallback to local JSON -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
+    <script>
+    (function () {
+      var host = document.getElementById('heroRobot');
+      if (!host || !window.lottie) return;
+
+      var anim = window.lottie.loadAnimation({
+        container: host,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: 'assets/robot.json',
+        rendererSettings: { preserveAspectRatio: 'xMidYMid meet' }
+      });
+
+      if (anim) anim.setSpeed(0.9);
+    })();
   </script>
+
 </body>
 </html>
