@@ -285,6 +285,161 @@ qsa('.lux-quick').forEach(btn => {
   });
 });
 
+  // Live network rates (BNB/TRX/ETH)
+  const rateEls = {
+    bnb: qs('#rateBNB'),
+    trx: qs('#rateTRX'),
+    eth: qs('#rateETH'),
+    chgBnb: qs('#chgBNB'),
+    chgTrx: qs('#chgTRX'),
+    chgEth: qs('#chgETH'),
+    updated: qs('#ratesUpdatedAt')
+  };
+
+  const last = { bnb: null, trx: null, eth: null };
+
+  function fmtUsd(v){
+    if(!Number.isFinite(v)) return '--';
+    if(v >= 1000) return `${v.toLocaleString('en-US', { maximumFractionDigits: 0 })} USDT`;
+    if(v >= 1) return `${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT`;
+    return `${v.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 6 })} USDT`;
+  }
+
+  function fmtPct(v){
+    if(!Number.isFinite(v)) return '--';
+    const sign = v > 0 ? '+' : '';
+    return `${sign}${v.toFixed(2)}%`;
+  }
+
+  function setTrend(el, trend){
+    if(!el) return;
+    el.classList.remove('is-up', 'is-down');
+    if(trend === 'up') el.classList.add('is-up');
+    if(trend === 'down') el.classList.add('is-down');
+  }
+
+  function setChange(el, v){
+    if(!el){
+      return;
+    }
+    el.textContent = fmtPct(v);
+    el.classList.remove('good', 'bad');
+    if(!Number.isFinite(v)) return;
+    if(v >= 0) el.classList.add('good');
+    else el.classList.add('bad');
+  }
+
+  async function fetchRates(){
+    const url = 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,binancecoin,tron&vs_currencies=usd&include_24hr_change=true';
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { 'accept': 'application/json' },
+      cache: 'no-store'
+    });
+    if(!res.ok) throw new Error('rates_fetch_failed');
+    return await res.json();
+  }
+
+  function applyRates(data){
+    const eth = Number(data?.ethereum?.usd);
+    const bnb = Number(data?.binancecoin?.usd);
+    const trx = Number(data?.tron?.usd);
+
+    const ethChg = Number(data?.ethereum?.usd_24h_change);
+    const bnbChg = Number(data?.binancecoin?.usd_24h_change);
+    const trxChg = Number(data?.tron?.usd_24h_change);
+
+    if(rateEls.eth){
+      rateEls.eth.textContent = fmtUsd(eth);
+      const t = last.eth == null ? null : (eth > last.eth ? 'up' : (eth < last.eth ? 'down' : null));
+      setTrend(rateEls.eth, t);
+      last.eth = Number.isFinite(eth) ? eth : last.eth;
+    }
+    if(rateEls.bnb){
+      rateEls.bnb.textContent = fmtUsd(bnb);
+      const t = last.bnb == null ? null : (bnb > last.bnb ? 'up' : (bnb < last.bnb ? 'down' : null));
+      setTrend(rateEls.bnb, t);
+      last.bnb = Number.isFinite(bnb) ? bnb : last.bnb;
+    }
+    if(rateEls.trx){
+      rateEls.trx.textContent = fmtUsd(trx);
+      const t = last.trx == null ? null : (trx > last.trx ? 'up' : (trx < last.trx ? 'down' : null));
+      setTrend(rateEls.trx, t);
+      last.trx = Number.isFinite(trx) ? trx : last.trx;
+    }
+
+    setChange(rateEls.chgEth, ethChg);
+    setChange(rateEls.chgBnb, bnbChg);
+    setChange(rateEls.chgTrx, trxChg);
+
+    if(rateEls.updated){
+      const now = new Date();
+      const t = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      rateEls.updated.textContent = `Updated ${t}`;
+    }
+  }
+
+  async function startRates(){
+    if(!rateEls.bnb && !rateEls.trx && !rateEls.eth) return;
+    try{
+      const data = await fetchRates();
+      applyRates(data);
+    }catch{
+      if(rateEls.updated) rateEls.updated.textContent = 'Live rates unavailable';
+    }
+    setInterval(async () => {
+      try{
+        const data = await fetchRates();
+        applyRates(data);
+      }catch{
+        // silent
+      }
+    }, 15000);
+  }
+
+  function setImg(el, src, alt){
+    if(!el) return;
+    const img = document.createElement('img');
+    img.className = 'lux-coin-icon';
+    img.alt = alt || '';
+    img.decoding = 'async';
+    img.loading = 'lazy';
+    img.referrerPolicy = 'no-referrer';
+    img.src = src;
+    el.replaceChildren(img);
+  }
+
+  function hydrateCoinIcons(){
+    const ICONS = {
+      usdt: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdt.svg',
+      bnb: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/bnb.svg',
+      trx: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/trx.svg',
+      eth: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg'
+    };
+
+    const usdtImg = qs('.lux-usdt-coin-img');
+    if(usdtImg && ICONS.usdt){
+      const original = usdtImg.getAttribute('src');
+      usdtImg.src = ICONS.usdt;
+      usdtImg.referrerPolicy = 'no-referrer';
+      usdtImg.addEventListener('error', () => {
+        if(original) usdtImg.src = original;
+      }, { once: true });
+    }
+
+    const mapNetToCoin = { bep20: 'bnb', trc20: 'trx', erc20: 'eth' };
+    qsa('.lux-netrate').forEach(row => {
+      const net = String(row.getAttribute('data-net') || '').toLowerCase();
+      const coin = mapNetToCoin[net];
+      const holder = qs('.lux-netrate-ic', row);
+      if(!holder || !coin || !ICONS[coin]) return;
+      setImg(holder, ICONS[coin], coin.toUpperCase());
+    });
+  }
+
+  hydrateCoinIcons();
+  startRates();
+
 // Subtle entrance motion
   window.addEventListener('load', () => {
     document.body.classList.add('lux-loaded');

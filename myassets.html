@@ -16,6 +16,9 @@
   <!-- Font Awesome Icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 
+  <!-- Crypto icon font (BNB / TRX / ETH) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cryptocoins/2.9.0/webfont/cryptocoins.css" rel="stylesheet" />
+
   <link rel="stylesheet" href="./styles.css" />
 
 </head>
@@ -163,6 +166,72 @@
               <span class="lux-quick-ico"><i class="fa-solid fa-chart-column"></i></span>
               <span class="lux-quick-label">Analytics</span>
             </button>
+            </div>
+
+            <!-- Live network rates (BEP20 / TRC20 / ERC20) -->
+            <div class="lux-netrates" aria-label="Network rates">
+              <div class="lux-netrates-head">
+                <div class="lux-netrates-title">Networks</div>
+                <div class="lux-live-pill lux-live-pill--mini" aria-label="Live">
+                  <span class="lux-dot" aria-hidden="true"></span>
+                  <span>Live</span>
+                </div>
+              </div>
+
+              <div class="lux-netrates-list">
+                <div class="lux-netrate" data-net="bep20">
+                  <div class="lux-netrate-ic" aria-hidden="true">
+                    <i class="cc BNB" aria-hidden="true"></i>
+                  </div>
+                  <div class="lux-netrate-mid">
+                    <div class="lux-netrate-top">
+                      <div class="lux-netrate-name">BEP20</div>
+                      <div class="lux-netrate-chip" id="rateBNB" aria-label="BNB USD">--</div>
+                    </div>
+                    <div class="lux-netrate-sub">
+                      <span class="lux-netrate-desc">BNB Smart Chain</span>
+                      <span class="lux-netrate-sep">•</span>
+                      <span class="lux-netrate-change" id="chgBNB">--</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="lux-netrate" data-net="trc20">
+                  <div class="lux-netrate-ic" aria-hidden="true">
+                    <i class="cc TRX" aria-hidden="true"></i>
+                  </div>
+                  <div class="lux-netrate-mid">
+                    <div class="lux-netrate-top">
+                      <div class="lux-netrate-name">TRC20</div>
+                      <div class="lux-netrate-chip" id="rateTRX" aria-label="TRX USD">--</div>
+                    </div>
+                    <div class="lux-netrate-sub">
+                      <span class="lux-netrate-desc">Tron Network</span>
+                      <span class="lux-netrate-sep">•</span>
+                      <span class="lux-netrate-change" id="chgTRX">--</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="lux-netrate" data-net="erc20">
+                  <div class="lux-netrate-ic" aria-hidden="true">
+                    <i class="cc ETH" aria-hidden="true"></i>
+                  </div>
+                  <div class="lux-netrate-mid">
+                    <div class="lux-netrate-top">
+                      <div class="lux-netrate-name">ERC20</div>
+                      <div class="lux-netrate-chip" id="rateETH" aria-label="ETH USD">--</div>
+                    </div>
+                    <div class="lux-netrate-sub">
+                      <span class="lux-netrate-desc">Ethereum Network</span>
+                      <span class="lux-netrate-sep">•</span>
+                      <span class="lux-netrate-change" id="chgETH">--</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="lux-netrates-foot" id="ratesUpdatedAt" aria-label="Last update">Updating…</div>
             </div>
           </div>
         </div>

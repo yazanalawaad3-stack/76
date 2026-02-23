@@ -848,6 +848,175 @@ body{
   gap: 8px;
 }
 
+/* Network rates (below quick actions) */
+.lux-netrates{
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 12px 10px;
+  border-radius: var(--radius2);
+  border: 1px solid rgba(255,255,255,.10);
+  background:
+    radial-gradient(700px 220px at 20% 0%, rgba(155, 115, 255, .20), transparent 62%),
+    radial-gradient(700px 220px at 90% 30%, rgba(95, 210, 255, .12), transparent 65%),
+    rgba(12,14,26,.86);
+  box-shadow: 0 18px 60px rgba(0,0,0,.42);
+}
+
+.lux-netrates-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.lux-netrates-title{
+  font-weight: 900;
+  letter-spacing: -.2px;
+  font-size: 14px;
+}
+
+.lux-live-pill--mini{
+  padding: 7px 10px;
+  font-size: 11.5px;
+}
+
+.lux-netrates-list{
+  display:flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lux-netrate{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  padding: 10px 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.30);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.lux-netrate-ic{
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  display:grid;
+  place-items:center;
+  color: rgba(244,246,255,.92);
+  border: 1px solid rgba(255,255,255,.12);
+  background:
+    radial-gradient(70px 50px at 30% 15%, rgba(140,84,255,.22), transparent 65%),
+    radial-gradient(70px 50px at 80% 70%, rgba(0,209,255,.14), transparent 65%),
+    rgba(255,255,255,.04);
+  box-shadow: 0 16px 40px rgba(0,0,0,.32);
+}
+
+.lux-netrate-ic .cc{
+  font-size: 20px;
+  line-height: 1;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,.45));
+}
+
+.lux-netrate-ic .lux-coin-icon{
+  width: 24px;
+  height: 24px;
+  display:block;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,.45));
+}
+
+.lux-usdt-coin-img{
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.lux-netrate[data-net="bep20"] .lux-netrate-ic{
+  background:
+    radial-gradient(70px 55px at 30% 18%, rgba(255, 212, 60, .18), transparent 62%),
+    radial-gradient(70px 55px at 80% 70%, rgba(0,209,255,.14), transparent 65%),
+    rgba(255,255,255,.04);
+}
+
+.lux-netrate[data-net="trc20"] .lux-netrate-ic{
+  background:
+    radial-gradient(70px 55px at 30% 18%, rgba(255, 93, 123, .18), transparent 62%),
+    radial-gradient(70px 55px at 80% 70%, rgba(140,84,255,.16), transparent 65%),
+    rgba(255,255,255,.04);
+}
+
+.lux-netrate[data-net="erc20"] .lux-netrate-ic{
+  background:
+    radial-gradient(70px 55px at 30% 18%, rgba(145, 165, 255, .18), transparent 62%),
+    radial-gradient(70px 55px at 80% 70%, rgba(0,209,255,.12), transparent 65%),
+    rgba(255,255,255,.04);
+}
+
+.lux-netrate-mid{ flex: 1; min-width: 0; }
+
+.lux-netrate-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+}
+
+.lux-netrate-name{
+  font-weight: 900;
+  letter-spacing: -.2px;
+  font-size: 13px;
+}
+
+.lux-netrate-chip{
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 14px 40px rgba(0,0,0,.35);
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: .1px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.lux-netrate-chip.is-up{
+  border-color: rgba(46,229,157,.28);
+  box-shadow: 0 0 0 2px rgba(46,229,157,.12) inset, 0 14px 40px rgba(0,0,0,.35);
+}
+
+.lux-netrate-chip.is-down{
+  border-color: rgba(255,93,123,.28);
+  box-shadow: 0 0 0 2px rgba(255,93,123,.12) inset, 0 14px 40px rgba(0,0,0,.35);
+}
+
+.lux-netrate-sub{
+  margin-top: 4px;
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  color: var(--muted2);
+  font-size: 12px;
+  font-weight: 700;
+  overflow:hidden;
+  white-space: nowrap;
+}
+
+.lux-netrate-desc{ overflow:hidden; text-overflow: ellipsis; }
+.lux-netrate-sep{ opacity: .45; }
+
+.lux-netrate-change{ font-variant-numeric: tabular-nums; }
+.lux-netrate-change.good{ color: rgba(46,229,157,.92); }
+.lux-netrate-change.bad{ color: rgba(255,93,123,.92); }
+
+.lux-netrates-foot{
+  margin-top: 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: rgba(244,246,255,.62);
+}
+
 
 .lux-quick{
   appearance: none;
