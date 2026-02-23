@@ -329,15 +329,80 @@ qsa('.lux-quick').forEach(btn => {
     else el.classList.add('bad');
   }
 
+  const RATES_CACHE_KEY = 'lux_rates_cache_v1';
+
+  function readCachedRates(){
+    try{
+      const raw = localStorage.getItem(RATES_CACHE_KEY);
+      if(!raw) return null;
+      const parsed = JSON.parse(raw);
+      if(!parsed || typeof parsed !== 'object') return null;
+      if(!parsed.data || !parsed.ts) return null;
+      return parsed;
+    }catch{
+      return null;
+    }
+  }
+
+  function writeCachedRates(data){
+    try{
+      localStorage.setItem(RATES_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+    }catch{
+      // ignore
+    }
+  }
+
+  async function fetchJsonWithTimeout(url, timeoutMs){
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
+    try{
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: { 'accept': 'application/json' },
+        cache: 'no-store',
+        signal: ctrl.signal
+      });
+      if(!res.ok) throw new Error('rates_fetch_failed');
+      return await res.json();
+    }finally{
+      clearTimeout(t);
+    }
+  }
+
+  function normalizeFromBinance(arr){
+    if(!Array.isArray(arr)) return null;
+    const map = Object.create(null);
+    for(const it of arr){
+      const sym = String(it?.symbol || '');
+      map[sym] = it;
+    }
+    const bnb = Number(map['BNBUSDT']?.lastPrice);
+    const eth = Number(map['ETHUSDT']?.lastPrice);
+    const trx = Number(map['TRXUSDT']?.lastPrice);
+    const bnbChg = Number(map['BNBUSDT']?.priceChangePercent);
+    const ethChg = Number(map['ETHUSDT']?.priceChangePercent);
+    const trxChg = Number(map['TRXUSDT']?.priceChangePercent);
+    if(!Number.isFinite(bnb) && !Number.isFinite(eth) && !Number.isFinite(trx)) return null;
+    return {
+      binancecoin: { usd: bnb, usd_24h_change: bnbChg },
+      ethereum: { usd: eth, usd_24h_change: ethChg },
+      tron: { usd: trx, usd_24h_change: trxChg }
+    };
+  }
+
   async function fetchRates(){
-    const url = 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,binancecoin,tron&vs_currencies=usd&include_24hr_change=true';
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: { 'accept': 'application/json' },
-      cache: 'no-store'
-    });
-    if(!res.ok) throw new Error('rates_fetch_failed');
-    return await res.json();
+    // Fast path: Binance single-call 24h ticker (often faster than CoinGecko)
+    try{
+      const bUrl = 'https://api.binance.com/api/v3/ticker/24hr?symbols=%5B%22BNBUSDT%22,%22ETHUSDT%22,%22TRXUSDT%22%5D';
+      const bData = await fetchJsonWithTimeout(bUrl, 2500);
+      const normalized = normalizeFromBinance(bData);
+      if(normalized) return normalized;
+    }catch{
+      // fallback below
+    }
+
+    const cgUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,binancecoin,tron&vs_currencies=usd&include_24hr_change=true';
+    return await fetchJsonWithTimeout(cgUrl, 3500);
   }
 
   function applyRates(data){
@@ -372,29 +437,62 @@ qsa('.lux-quick').forEach(btn => {
     setChange(rateEls.chgBnb, bnbChg);
     setChange(rateEls.chgTrx, trxChg);
 
-    if(rateEls.updated){
-      const now = new Date();
-      const t = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-      rateEls.updated.textContent = `Updated ${t}`;
-    }
+    // Updated timestamp intentionally hidden in UI
   }
 
   async function startRates(){
     if(!rateEls.bnb && !rateEls.trx && !rateEls.eth) return;
+
+    // Show cached values instantly (prevents long wait on first paint)
+    const cached = readCachedRates();
+    if(cached?.data){
+      // Accept cache up to 10 minutes old
+      const age = Date.now() - Number(cached.ts || 0);
+      if(Number.isFinite(age) && age >= 0 && age <= 10 * 60 * 1000){
+        applyRates(cached.data);
+      }
+    }
+
     try{
       const data = await fetchRates();
       applyRates(data);
+      writeCachedRates(data);
     }catch{
-      if(rateEls.updated) rateEls.updated.textContent = 'Live rates unavailable';
+      // silent (UI keeps last cached values or placeholders)
     }
-    setInterval(async () => {
+
+    let timer = null;
+    const tick = async () => {
       try{
         const data = await fetchRates();
         applyRates(data);
+        writeCachedRates(data);
       }catch{
         // silent
       }
-    }, 15000);
+    };
+
+    const startTimer = () => {
+      if(timer) return;
+      timer = setInterval(tick, 20000);
+    };
+
+    const stopTimer = () => {
+      if(!timer) return;
+      clearInterval(timer);
+      timer = null;
+    };
+
+    // Reduce background work on mobile
+    document.addEventListener('visibilitychange', () => {
+      if(document.hidden) stopTimer();
+      else{
+        tick();
+        startTimer();
+      }
+    });
+
+    startTimer();
   }
 
   function setImg(el, src, alt){
@@ -411,21 +509,10 @@ qsa('.lux-quick').forEach(btn => {
 
   function hydrateCoinIcons(){
     const ICONS = {
-      usdt: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdt.svg',
       bnb: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/bnb.svg',
       trx: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/trx.svg',
       eth: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg'
     };
-
-    const usdtImg = qs('.lux-usdt-coin-img');
-    if(usdtImg && ICONS.usdt){
-      const original = usdtImg.getAttribute('src');
-      usdtImg.src = ICONS.usdt;
-      usdtImg.referrerPolicy = 'no-referrer';
-      usdtImg.addEventListener('error', () => {
-        if(original) usdtImg.src = original;
-      }, { once: true });
-    }
 
     const mapNetToCoin = { bep20: 'bnb', trc20: 'trx', erc20: 'eth' };
     qsa('.lux-netrate').forEach(row => {
