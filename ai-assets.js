@@ -376,3 +376,14 @@
     bind();
   });
 })();
+
+
+// Back button: always return to myassets.html
+document.addEventListener("DOMContentLoaded", () => {
+  const back = document.querySelector(".back-btn");
+  if (!back) return;
+  back.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.location.href = "myassets.html";
+  });
+});
