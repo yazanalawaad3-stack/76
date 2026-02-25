@@ -62,8 +62,8 @@
       // Navigate to dedicated pages when tapping bottom nav items
       if(screen && typeof screen === 'string'){
         const s = screen.toLowerCase();
-        if(s === 'power'){
-          window.location.href = './power.html';
+        if(s === 'packages'){
+          window.location.href = './packages.html';
         }else if(s.includes('ai')){
           window.location.href = './ai-assets.html';
         }else if(s === 'market'){
