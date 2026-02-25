@@ -1,6 +1,6 @@
 /* Configuration */
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://rbydkgzxwjomvepbgwbh.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJieWRrZ3p4d2pvbXZlcGJnd2JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5Nzg1MjAsImV4cCI6MjA4NzU1NDUyMH0.nfnyB5FfPVFYAkFXhCSjxqXJGuu6RdRgxjbWygFeRLg";
 
 /* Redirect after success */
 const REDIRECT_TO = "myassets.html";
