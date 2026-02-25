@@ -1,534 +1,336 @@
-(() => {
-  const qs = (s, el=document) => el.querySelector(s);
-  const qsa = (s, el=document) => [...el.querySelectorAll(s)];
+/* myassets.js
+   Prepared for future Supabase integration.
+   Demo state uses localStorage only.
+*/
+(function () {
+  "use strict";
 
-  const toastEl = qs('#luxToast');
-  const toastText = qs('#toastText');
-  let toastTimer = null;
-
-  function toast(msg){
-    toastText.textContent = msg;
-    toastEl.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1400);
-  }
-
-  async function safeCopy(text){
-    try{
-      await navigator.clipboard.writeText(String(text));
-      return true;
-    }catch{
-      try{
-        const ta = document.createElement('textarea');
-        ta.value = String(text);
-        ta.setAttribute('readonly','');
-        ta.style.position = 'fixed';
-        ta.style.top = '-1000px';
-        document.body.appendChild(ta);
-        ta.select();
-        const ok = document.execCommand('copy');
-        document.body.removeChild(ta);
-        return !!ok;
-      }catch{
-        return false;
-      }
-    }
-  }
-
-  // Bottom dock active state + indicator
-  const navItems = qsa('.dock-item');
-  const indicator = qs('.dock-indicator');
-
-  function activateDock(screen){
-    const btn = navItems.find(b => b.getAttribute('data-screen') === screen);
-    if(!btn) return;
-    navItems.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    updateIndicator();
-    const labelEl = btn.querySelector('.dock-tx');
-    const label = (labelEl ? labelEl.textContent : (btn.getAttribute('aria-label') || screen));
-    toast(String(label).trim() || 'Ready');
-  }
-  function updateIndicator(){
-    const activeIndex = Math.max(0, navItems.findIndex(b => b.classList.contains('active')));
-    const step = (indicator.parentElement.clientWidth - 20) / 5; // inner width minus padding
-    indicator.style.transform = `translateX(${activeIndex * step}px)`;
-  }
-
-  navItems.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const screen = btn.getAttribute('data-screen');
-      activateDock(screen);
-      // Navigate to dedicated pages when tapping bottom nav items
-      if(screen && typeof screen === 'string'){
-        const s = screen.toLowerCase();
-        if(s === 'packages'){
-          window.location.href = './packages.html';
-        }else if(s.includes('ai')){
-          window.location.href = './ai-assets.html';
-        }else if(s === 'market'){
-          window.location.href = './index000.html';
-        }
-      }
-    });
-  });
-
-  window.addEventListener('resize', updateIndicator);
-  updateIndicator();
-
-  // Optional demo actions (guarded)
-  const addBtn = qs('#addFundsBtn');
-  if(addBtn){
-    addBtn.addEventListener('click', () => {
-      const el = qs('#demoBalance');
-      const raw = el.textContent.replace(/,/g,'');
-      const v = Number(raw);
-      const next = v + 250;
-      // Format using en-US to avoid locale-specific separators like middots
-      el.textContent = next.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
-      toast('Demo balance updated');
-    });
-  }
-
-  // Invite friends / referral
-  const inviteBtn = qs('#inviteFriendsBtn');
-  if(inviteBtn){
-    // Navigate to dedicated invite page instead of copying directly.
-    inviteBtn.addEventListener('click', () => {
-      window.location.href = './invite.html';
-    });
-  }
-
-  // User ID chip
-  const userIdEl = qs('#userIdValue');
-  const copyUserIdBtn = qs('#copyUserIdBtn');
-  if(userIdEl){
-    const raw = (
-      window.LUX_USER_ID ||
-      window.USER_ID ||
-      localStorage.getItem('lux_user_id') ||
-      localStorage.getItem('user_id') ||
-      userIdEl.textContent
-    );
-    const uid = String(raw || '').trim() || '750899';
-    userIdEl.textContent = uid;
-
-    if(copyUserIdBtn){
-      copyUserIdBtn.addEventListener('click', async () => {
-        const ok = await safeCopy(uid);
-        toast(ok ? 'ID copied ✅' : 'Copy failed');
-      });
-    }
-  }
-
-  // Top actions
-  const settingsBtn = qs('#settingsBtn');
-  const settingsMenu = qs('#settingsMenu');
-
-  function positionSettingsMenu(){
-    if(!settingsBtn || !settingsMenu) return;
-    const r = settingsBtn.getBoundingClientRect();
-    const top = Math.round(r.bottom + 10);
-    const left = Math.max(10, Math.round(r.right - settingsMenu.offsetWidth));
-    settingsMenu.style.top = `${top}px`;
-    settingsMenu.style.left = `${left}px`;
-    settingsMenu.style.right = 'auto';
-  }
-
-  function openSettingsMenu(){
-    if(!settingsMenu) return;
-    positionSettingsMenu();
-    settingsMenu.classList.add('show');
-    settingsMenu.setAttribute('aria-hidden','false');
-  }
-
-  function closeSettingsMenu(){
-    if(!settingsMenu) return;
-    settingsMenu.classList.remove('show');
-    settingsMenu.setAttribute('aria-hidden','true');
-  }
-
-  function toggleSettingsMenu(){
-    if(!settingsMenu) return;
-    const isOpen = settingsMenu.classList.contains('show');
-    isOpen ? closeSettingsMenu() : openSettingsMenu();
-  }
-
-  if(settingsBtn){
-    settingsBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleSettingsMenu();
-    });
-  }
-
-  if(settingsMenu){
-    settingsMenu.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const item = e.target.closest('.lux-menu-item');
-      if(!item) return;
-const actionRaw = String(item.getAttribute('data-action') || '').trim();
-if(!actionRaw) return;
-
-const action = ({
-  levels: 'member',
-  bonus: 'rewards',
-  email: 'security',
-  how: 'guide',
-  download: 'getapp'
-}[actionRaw] || actionRaw);
-
-const txEl = qs('.lux-menu-tx', item);
-const label = String(txEl ? txEl.textContent : (action || 'Done')).trim();
-
-const evMap = {
-  member: ['lux:settings:member', 'lux:settings:levels'],
-  rewards: ['lux:settings:rewards', 'lux:settings:bonus'],
-  security: ['lux:settings:security', 'lux:settings:email'],
-  language: ['lux:settings:language'],
-  about: ['lux:settings:about'],
-  guide: ['lux:settings:guide', 'lux:settings:how'],
-  getapp: ['lux:settings:getapp', 'lux:settings:download']
-};
-
-const events = evMap[action] || [`lux:settings:${action}`];
-events.forEach(ev => window.dispatchEvent(new CustomEvent(ev)));
-toast(label);
-
-      // Simple page navigation for menu items that have pages.
-      if(action === 'about'){
-        window.location.href = './about.html';
-      }
-      if(action === 'guide'){
-        window.location.href = './guide.html';
-      }
-      if(action === 'language'){
-        window.location.href = './language.html';
-      }
-      // Added navigation to new pages
-      if(action === 'member'){
-        window.location.href = './member.html';
-      }
-      if(action === 'rewards'){
-        window.location.href = './rewards.html';
-      }
-      if(action === 'security'){
-        window.location.href = './security.html';
-      }
-      closeSettingsMenu();
-    });
-  }
-
-  document.addEventListener('click', () => closeSettingsMenu());
-  window.addEventListener('resize', () => {
-    if(settingsMenu && settingsMenu.classList.contains('show')) positionSettingsMenu();
-  });
-  document.addEventListener('keydown', (e) => {
-    if(e.key === 'Escape') closeSettingsMenu();
-  });
-
-  const notifyBtn = qs('#notifyBtn');
-  if(notifyBtn){
-    notifyBtn.addEventListener('click', () => {
-      closeSettingsMenu();
-      window.dispatchEvent(new CustomEvent('lux:notifications:open'));
-      toast('Notifications');
-    });
-  }
-
-// Quick actions
-const quickNetworkBtn = qs('#quickNetworkBtn');
-if(quickNetworkBtn){
-  quickNetworkBtn.addEventListener('click', () => {
-    // Navigate to the new network page instead of emitting only events.
-    window.location.href = './network.html';
-  });
-}
-
-// Transfer quick action: detect button by its label and navigate
-const quickButtons = qsa('.lux-quick');
-quickButtons.forEach(btn => {
-  const labelEl = qs('.lux-quick-label', btn);
-  const label = String(labelEl ? labelEl.textContent : '').trim().toLowerCase();
-  if(label === 'transfer'){
-    btn.addEventListener('click', () => {
-      window.location.href = './transfer.html';
-    });
-  }
-});
-
-
-  // Navigate to Wallet page
-  const walletBtn = qs('#walletBtn');
-  if(walletBtn){
-    walletBtn.addEventListener('click', () => {
-      window.location.href = './wallet.html';
-    });
-  }
-// Navigate to Analytics page
-  const analyticsBtn = qs('#analyticsBtn');
-  if(analyticsBtn){
-    analyticsBtn.addEventListener('click', () => {
-      window.location.href = './analytics.html';
-    });
-  }
-
-// Show a toast for other quick buttons too (Wallet / Transfer / Analytics)
-qsa('.lux-quick').forEach(btn => {
-  if(btn.id) return; // handled above
-  btn.addEventListener('click', () => {
-    const labelEl = qs('.lux-quick-label', btn);
-    const label = String(labelEl ? labelEl.textContent : (btn.getAttribute('aria-label') || 'Done')).trim();
-    toast(label);
-  });
-});
-
-  // Live network rates (BNB/TRX/ETH)
-  const rateEls = {
-    bnb: qs('#rateBNB'),
-    trx: qs('#rateTRX'),
-    eth: qs('#rateETH'),
-    chgBnb: qs('#chgBNB'),
-    chgTrx: qs('#chgTRX'),
-    chgEth: qs('#chgETH'),
-    updated: qs('#ratesUpdatedAt')
+  const KEYS = {
+    USER_ID: "user_id_demo",
+    PROFILE: "profile_demo",
+    ACTIVITY: "activity_demo",
+    NETWORK_LEGACY: "network_activity_demo"
   };
 
-  const last = { bnb: null, trx: null, eth: null };
+  const $id = (id) => document.getElementById(id);
 
-  function fmtUsd(v){
-    if(!Number.isFinite(v)) return '--';
-    if(v >= 1000) return `${v.toLocaleString('en-US', { maximumFractionDigits: 0 })} USDT`;
-    if(v >= 1) return `${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT`;
-    return `${v.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 6 })} USDT`;
+  function safeParse(raw, fallback) {
+    try { return JSON.parse(raw); } catch (_) { return fallback; }
   }
 
-  function fmtPct(v){
-    if(!Number.isFinite(v)) return '--';
-    const sign = v > 0 ? '+' : '';
-    return `${sign}${v.toFixed(2)}%`;
+  function readStore(key, fallback) {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    return safeParse(raw, fallback);
   }
 
-  function setTrend(el, trend){
-    if(!el) return;
-    el.classList.remove('is-up', 'is-down');
-    if(trend === 'up') el.classList.add('is-up');
-    if(trend === 'down') el.classList.add('is-down');
+  function writeStore(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
   }
 
-  function setChange(el, v){
-    if(!el){
+  function now() { return Date.now(); }
+
+  function toMoney(n) {
+    const x = Number(n);
+    if (!Number.isFinite(x)) return "0.00";
+    return x.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function gen8() {
+    const min = 10000000;
+    const max = 99999999;
+    return String(Math.floor(min + Math.random() * (max - min + 1)));
+  }
+
+  function ensureUserId() {
+    let id = localStorage.getItem(KEYS.USER_ID);
+    if (!id || !/^\d{8}$/.test(id)) {
+      id = gen8();
+      localStorage.setItem(KEYS.USER_ID, id);
+    }
+    return id;
+  }
+
+  function ensureProfile() {
+    const p0 = readStore(KEYS.PROFILE, null);
+    if (!p0 || typeof p0 !== "object") {
+      // Registration bonus: 4
+      writeStore(KEYS.PROFILE, { balance: 4, level: "V0", frozen: false });
       return;
     }
-    el.textContent = fmtPct(v);
-    el.classList.remove('good', 'bad');
-    if(!Number.isFinite(v)) return;
-    if(v >= 0) el.classList.add('good');
-    else el.classList.add('bad');
+    const next = {
+      balance: Number.isFinite(Number(p0.balance)) ? Number(p0.balance) : 0,
+      level: typeof p0.level === "string" ? p0.level : "V0",
+      frozen: Boolean(p0.frozen)
+    };
+    writeStore(KEYS.PROFILE, next);
   }
 
-  const RATES_CACHE_KEY = 'lux_rates_cache_v1';
-
-  function readCachedRates(){
-    try{
-      const raw = localStorage.getItem(RATES_CACHE_KEY);
-      if(!raw) return null;
-      const parsed = JSON.parse(raw);
-      if(!parsed || typeof parsed !== 'object') return null;
-      if(!parsed.data || !parsed.ts) return null;
-      return parsed;
-    }catch{
-      return null;
-    }
-  }
-
-  function writeCachedRates(data){
-    try{
-      localStorage.setItem(RATES_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
-    }catch{
-      // ignore
-    }
-  }
-
-  async function fetchJsonWithTimeout(url, timeoutMs){
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), timeoutMs);
-    try{
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: { 'accept': 'application/json' },
-        cache: 'no-store',
-        signal: ctrl.signal
+  function ensureActivity() {
+    const a0 = readStore(KEYS.ACTIVITY, null);
+    if (!a0 || typeof a0 !== "object") {
+      writeStore(KEYS.ACTIVITY, {
+        today: 0,
+        total: 0,
+        networkToday: 0,
+        networkTotal: 0,
+        lastUpdatedAt: 0
       });
-      if(!res.ok) throw new Error('rates_fetch_failed');
-      return await res.json();
-    }finally{
-      clearTimeout(t);
     }
   }
 
-  function normalizeFromBinance(arr){
-    if(!Array.isArray(arr)) return null;
-    const map = Object.create(null);
-    for(const it of arr){
-      const sym = String(it?.symbol || '');
-      map[sym] = it;
-    }
-    const bnb = Number(map['BNBUSDT']?.lastPrice);
-    const eth = Number(map['ETHUSDT']?.lastPrice);
-    const trx = Number(map['TRXUSDT']?.lastPrice);
-    const bnbChg = Number(map['BNBUSDT']?.priceChangePercent);
-    const ethChg = Number(map['ETHUSDT']?.priceChangePercent);
-    const trxChg = Number(map['TRXUSDT']?.priceChangePercent);
-    if(!Number.isFinite(bnb) && !Number.isFinite(eth) && !Number.isFinite(trx)) return null;
-    return {
-      binancecoin: { usd: bnb, usd_24h_change: bnbChg },
-      ethereum: { usd: eth, usd_24h_change: ethChg },
-      tron: { usd: trx, usd_24h_change: trxChg }
-    };
-  }
+  function mergeLegacyNetworkActivity() {
+    const legacy = readStore(KEYS.NETWORK_LEGACY, null);
+    if (!legacy || typeof legacy !== "object") return;
 
-  async function fetchRates(){
-    // Fast path: Binance single-call 24h ticker (often faster than CoinGecko)
-    try{
-      const bUrl = 'https://api.binance.com/api/v3/ticker/24hr?symbols=%5B%22BNBUSDT%22,%22ETHUSDT%22,%22TRXUSDT%22%5D';
-      const bData = await fetchJsonWithTimeout(bUrl, 2500);
-      const normalized = normalizeFromBinance(bData);
-      if(normalized) return normalized;
-    }catch{
-      // fallback below
-    }
-
-    const cgUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,binancecoin,tron&vs_currencies=usd&include_24hr_change=true';
-    return await fetchJsonWithTimeout(cgUrl, 3500);
-  }
-
-  function applyRates(data){
-    const eth = Number(data?.ethereum?.usd);
-    const bnb = Number(data?.binancecoin?.usd);
-    const trx = Number(data?.tron?.usd);
-
-    const ethChg = Number(data?.ethereum?.usd_24h_change);
-    const bnbChg = Number(data?.binancecoin?.usd_24h_change);
-    const trxChg = Number(data?.tron?.usd_24h_change);
-
-    if(rateEls.eth){
-      rateEls.eth.textContent = fmtUsd(eth);
-      const t = last.eth == null ? null : (eth > last.eth ? 'up' : (eth < last.eth ? 'down' : null));
-      setTrend(rateEls.eth, t);
-      last.eth = Number.isFinite(eth) ? eth : last.eth;
-    }
-    if(rateEls.bnb){
-      rateEls.bnb.textContent = fmtUsd(bnb);
-      const t = last.bnb == null ? null : (bnb > last.bnb ? 'up' : (bnb < last.bnb ? 'down' : null));
-      setTrend(rateEls.bnb, t);
-      last.bnb = Number.isFinite(bnb) ? bnb : last.bnb;
-    }
-    if(rateEls.trx){
-      rateEls.trx.textContent = fmtUsd(trx);
-      const t = last.trx == null ? null : (trx > last.trx ? 'up' : (trx < last.trx ? 'down' : null));
-      setTrend(rateEls.trx, t);
-      last.trx = Number.isFinite(trx) ? trx : last.trx;
-    }
-
-    setChange(rateEls.chgEth, ethChg);
-    setChange(rateEls.chgBnb, bnbChg);
-    setChange(rateEls.chgTrx, trxChg);
-
-    // Updated timestamp intentionally hidden in UI
-  }
-
-  async function startRates(){
-    if(!rateEls.bnb && !rateEls.trx && !rateEls.eth) return;
-
-    // Show cached values instantly (prevents long wait on first paint)
-    const cached = readCachedRates();
-    if(cached?.data){
-      // Accept cache up to 10 minutes old
-      const age = Date.now() - Number(cached.ts || 0);
-      if(Number.isFinite(age) && age >= 0 && age <= 10 * 60 * 1000){
-        applyRates(cached.data);
-      }
-    }
-
-    try{
-      const data = await fetchRates();
-      applyRates(data);
-      writeCachedRates(data);
-    }catch{
-      // silent (UI keeps last cached values or placeholders)
-    }
-
-    let timer = null;
-    const tick = async () => {
-      try{
-        const data = await fetchRates();
-        applyRates(data);
-        writeCachedRates(data);
-      }catch{
-        // silent
-      }
-    };
-
-    const startTimer = () => {
-      if(timer) return;
-      timer = setInterval(tick, 20000);
-    };
-
-    const stopTimer = () => {
-      if(!timer) return;
-      clearInterval(timer);
-      timer = null;
-    };
-
-    // Reduce background work on mobile
-    document.addEventListener('visibilitychange', () => {
-      if(document.hidden) stopTimer();
-      else{
-        tick();
-        startTimer();
-      }
+    const act0 = readStore(KEYS.ACTIVITY, {
+      today: 0,
+      total: 0,
+      networkToday: 0,
+      networkTotal: 0,
+      lastUpdatedAt: 0
     });
 
-    startTimer();
-  }
+    const nt = Number.isFinite(Number(legacy.today)) ? Number(legacy.today) : 0;
+    const ntt = Number.isFinite(Number(legacy.total)) ? Number(legacy.total) : 0;
 
-  function setImg(el, src, alt){
-    if(!el) return;
-    const img = document.createElement('img');
-    img.className = 'lux-coin-icon';
-    img.alt = alt || '';
-    img.decoding = 'async';
-    img.loading = 'lazy';
-    img.referrerPolicy = 'no-referrer';
-    img.src = src;
-    el.replaceChildren(img);
-  }
-
-  function hydrateCoinIcons(){
-    const ICONS = {
-      bnb: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/bnb.svg',
-      trx: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/trx.svg',
-      eth: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg'
+    const merged = {
+      ...act0,
+      networkToday: Math.max(act0.networkToday || 0, nt),
+      networkTotal: Math.max(act0.networkTotal || 0, ntt),
+      lastUpdatedAt: now()
     };
 
-    const mapNetToCoin = { bep20: 'bnb', trc20: 'trx', erc20: 'eth' };
-    qsa('.lux-netrate').forEach(row => {
-      const net = String(row.getAttribute('data-net') || '').toLowerCase();
-      const coin = mapNetToCoin[net];
-      const holder = qs('.lux-netrate-ic', row);
-      if(!holder || !coin || !ICONS[coin]) return;
-      setImg(holder, ICONS[coin], coin.toUpperCase());
+    writeStore(KEYS.ACTIVITY, merged);
+  }
+
+  function getProfile() {
+    return readStore(KEYS.PROFILE, { balance: 0, level: "V0", frozen: false });
+  }
+
+  function getActivity() {
+    return readStore(KEYS.ACTIVITY, {
+      today: 0,
+      total: 0,
+      networkToday: 0,
+      networkTotal: 0,
+      lastUpdatedAt: 0
     });
   }
 
-  hydrateCoinIcons();
-  startRates();
+  function setToast(text) {
+    const toastText = $id("toastText");
+    if (toastText) toastText.textContent = text;
 
-// Subtle entrance motion
-  window.addEventListener('load', () => {
-    document.body.classList.add('lux-loaded');
-  });
+    const toast = $id("luxToast");
+    if (!toast) return;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2000);
+  }
+
+  function copyText(text) {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        () => setToast("Copied"),
+        () => setToast("Copy failed")
+      );
+      return;
+    }
+    // Fallback
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+      setToast("Copied");
+    } catch (_) {
+      setToast("Copy failed");
+    } finally {
+      document.body.removeChild(ta);
+    }
+  }
+
+  function render() {
+    const id = ensureUserId();
+    const profile = getProfile();
+    const act = getActivity();
+
+    const userIdValue = $id("userIdValue");
+    if (userIdValue) userIdValue.textContent = id;
+
+    const balanceEl = $id("demoBalance");
+    if (balanceEl) balanceEl.textContent = toMoney(profile.balance);
+
+    const todayIncome = $id("todayIncome");
+    if (todayIncome) todayIncome.textContent = "$" + toMoney(act.today);
+
+    const totalIncome = $id("totalIncome");
+    if (totalIncome) totalIncome.textContent = "$" + toMoney(act.total);
+
+    const teamIncome = $id("teamIncome");
+    if (teamIncome) teamIncome.textContent = "$" + toMoney(act.networkToday);
+
+    const teamTotal = $id("teamTotalIncome");
+    if (teamTotal) teamTotal.textContent = "$" + toMoney(act.networkTotal);
+  }
+
+  function toggleSettingsMenu(force) {
+    const menu = $id("settingsMenu");
+    if (!menu) return;
+
+    const isHidden = menu.getAttribute("aria-hidden") !== "false";
+    const nextOpen = typeof force === "boolean" ? force : isHidden;
+
+    menu.setAttribute("aria-hidden", nextOpen ? "false" : "true");
+    menu.classList.toggle("open", nextOpen);
+  }
+
+  function closeSettingsMenu() {
+    toggleSettingsMenu(false);
+  }
+
+  function bindTop() {
+    const copyBtn = $id("copyUserIdBtn");
+    if (copyBtn) {
+      copyBtn.addEventListener("click", () => {
+        const id = localStorage.getItem(KEYS.USER_ID) || "";
+        copyText(id);
+      });
+    }
+
+    const settingsBtn = $id("settingsBtn");
+    if (settingsBtn) {
+      settingsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleSettingsMenu();
+      });
+    }
+
+    const notifyBtn = $id("notifyBtn");
+    if (notifyBtn) {
+      notifyBtn.addEventListener("click", () => setToast("No notifications"));
+    }
+
+    document.addEventListener("click", (e) => {
+      const menu = $id("settingsMenu");
+      if (!menu) return;
+      const target = e.target;
+      const inside = menu.contains(target) || (settingsBtn && settingsBtn.contains(target));
+      if (!inside) closeSettingsMenu();
+    });
+
+    const menu = $id("settingsMenu");
+    if (menu) {
+      menu.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-action]");
+        if (!btn) return;
+        const action = btn.getAttribute("data-action") || "";
+        closeSettingsMenu();
+
+        if (action === "member") window.location.href = "member.html";
+        else if (action === "rewards") window.location.href = "ai-assets.html";
+        else if (action === "security") setToast("Security Center");
+        else if (action === "language") setToast("Language Settings");
+        else if (action === "about") setToast("About Platform");
+        else if (action === "guide") setToast("Platform Guide");
+        else if (action === "getapp") setToast("Get the App");
+      });
+    }
+  }
+
+  function bindQuick() {
+    const invite = $id("inviteFriendsBtn");
+    if (invite) {
+      invite.addEventListener("click", () => {
+        const id = localStorage.getItem(KEYS.USER_ID) || "";
+        copyText(id);
+        setToast("Invite code copied");
+      });
+    }
+
+    const walletBtn = $id("walletBtn");
+    if (walletBtn) walletBtn.addEventListener("click", () => window.location.href = "wallet.html");
+
+    const quickNetworkBtn = $id("quickNetworkBtn");
+    if (quickNetworkBtn) quickNetworkBtn.addEventListener("click", () => window.location.href = "network.html");
+
+    const analyticsBtn = $id("analyticsBtn");
+    if (analyticsBtn) analyticsBtn.addEventListener("click", () => window.location.href = "ai-assets.html");
+  }
+
+  function bindDock() {
+    const items = Array.from(document.querySelectorAll(".dock-item"));
+    items.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const screen = (btn.getAttribute("data-screen") || "").toLowerCase();
+
+        if (screen.includes("ai")) window.location.href = "ai-assets.html";
+        else if (screen.includes("market")) window.location.href = "myassets.html";
+        else if (screen.includes("profile")) setToast("Profile");
+        else if (screen.includes("community")) setToast("Community");
+        else if (screen.includes("packages")) setToast("Packages");
+      });
+    });
+  }
+
+  function updateRatesDemo() {
+    // Demo only: show stable placeholders, ready to be replaced by Supabase/API later.
+    const rBNB = $id("rateBNB");
+    const rTRX = $id("rateTRX");
+    const rETH = $id("rateETH");
+    const cBNB = $id("chgBNB");
+    const cTRX = $id("chgTRX");
+    const cETH = $id("chgETH");
+    const updated = $id("ratesUpdatedAt");
+
+    const tick = () => {
+      const bnb = 600 + Math.random() * 30;
+      const trx = 0.10 + Math.random() * 0.02;
+      const eth = 2800 + Math.random() * 120;
+
+      if (rBNB) rBNB.textContent = "$" + bnb.toFixed(2);
+      if (rTRX) rTRX.textContent = "$" + trx.toFixed(4);
+      if (rETH) rETH.textContent = "$" + eth.toFixed(2);
+
+      const s1 = (Math.random() * 2 - 1);
+      const s2 = (Math.random() * 2 - 1);
+      const s3 = (Math.random() * 2 - 1);
+
+      if (cBNB) cBNB.textContent = (s1 >= 0 ? "+" : "") + s1.toFixed(2) + "%";
+      if (cTRX) cTRX.textContent = (s2 >= 0 ? "+" : "") + s2.toFixed(2) + "%";
+      if (cETH) cETH.textContent = (s3 >= 0 ? "+" : "") + s3.toFixed(2) + "%";
+
+      if (updated) updated.textContent = "Updated just now";
+    };
+
+    tick();
+    setInterval(tick, 15000);
+  }
+
+  function init() {
+    ensureUserId();
+    ensureProfile();
+    ensureActivity();
+    mergeLegacyNetworkActivity();
+
+    render();
+    bindTop();
+    bindQuick();
+    bindDock();
+    updateRatesDemo();
+
+    window.addEventListener("storage", (e) => {
+      if (!e) return;
+      if (e.key === KEYS.PROFILE || e.key === KEYS.ACTIVITY || e.key === KEYS.NETWORK_LEGACY) {
+        mergeLegacyNetworkActivity();
+        render();
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
 })();
