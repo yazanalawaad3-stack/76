@@ -575,7 +575,7 @@ qsa('.lux-quick').forEach(btn => {
   function ensureProfile() {
     const p0 = readStore(KEYS.PROFILE, null);
     if (!p0 || typeof p0 !== "object") {
-      // Registration bonus 4
+      // Registration bonus: 4
       writeStore(KEYS.PROFILE, { balance: 4, level: "V0", frozen: false });
       return;
     }
@@ -590,7 +590,13 @@ qsa('.lux-quick').forEach(btn => {
   function ensureActivity() {
     const a0 = readStore(KEYS.ACTIVITY, null);
     if (!a0 || typeof a0 !== "object") {
-      writeStore(KEYS.ACTIVITY, { today: 0, total: 0, networkToday: 0, networkTotal: 0, lastUpdatedAt: 0 });
+      writeStore(KEYS.ACTIVITY, {
+        today: 0,
+        total: 0,
+        networkToday: 0,
+        networkTotal: 0,
+        lastUpdatedAt: 0
+      });
     }
   }
 
@@ -598,7 +604,14 @@ qsa('.lux-quick').forEach(btn => {
     const legacy = readStore(KEYS.NETWORK_LEGACY, null);
     if (!legacy || typeof legacy !== "object") return;
 
-    const act0 = readStore(KEYS.ACTIVITY, { today: 0, total: 0, networkToday: 0, networkTotal: 0, lastUpdatedAt: 0 });
+    const act0 = readStore(KEYS.ACTIVITY, {
+      today: 0,
+      total: 0,
+      networkToday: 0,
+      networkTotal: 0,
+      lastUpdatedAt: 0
+    });
+
     const nt = Number.isFinite(Number(legacy.today)) ? Number(legacy.today) : 0;
     const ntt = Number.isFinite(Number(legacy.total)) ? Number(legacy.total) : 0;
 
@@ -610,8 +623,19 @@ qsa('.lux-quick').forEach(btn => {
     });
   }
 
-  function getProfile() { return readStore(KEYS.PROFILE, { balance: 0, level: "V0", frozen: false }); }
-  function getActivity() { return readStore(KEYS.ACTIVITY, { today: 0, total: 0, networkToday: 0, networkTotal: 0, lastUpdatedAt: 0 }); }
+  function getProfile() {
+    return readStore(KEYS.PROFILE, { balance: 0, level: "V0", frozen: false });
+  }
+
+  function getActivity() {
+    return readStore(KEYS.ACTIVITY, {
+      today: 0,
+      total: 0,
+      networkToday: 0,
+      networkTotal: 0,
+      lastUpdatedAt: 0
+    });
+  }
 
   function render() {
     const id = ensureUserId();
