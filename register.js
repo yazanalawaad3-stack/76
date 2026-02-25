@@ -145,16 +145,23 @@
     return { ok: true };
   }
 
-  // Future Supabase integration (stub)
+  // Supabase integration: register a new user.  This version calls
+  // LuxApp.registerUser() which performs all necessary
+  // hashing, user creation and signup bonus logic.  It returns an
+  // object with an `ok` boolean and either `data` (user) or `reason`
+  // (error message).
   async function saveRegistrationToSupabase(payload) {
-    // TODO: integrate later:
-    // 1) Include supabase-js
-    // 2) Initialize client:
-    //    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    // 3) Insert into a table (e.g. "users_pending"):
-    //    await supabase.from("users_pending").insert(payload)
-    // For now we just return a resolved response.
-    return { ok: true, data: payload };
+    try {
+      const user = await window.LuxApp.registerUser({
+        phone: payload.phone,
+        password: payload.password,
+        inviteCode: payload.invite_code
+      });
+      return { ok: true, data: user };
+    } catch (err) {
+      console.error(err);
+      return { ok: false, reason: err.message || 'Registration failed' };
+    }
   }
 
   function setupFormSubmit() {
@@ -203,9 +210,16 @@
           return showError("Registration failed. Try again.");
         }
 
-        showSuccess("Registered (prepared). You can now connect Supabase.");
-        form.reset();
-        setupAgreementToggle();
+        // Persist the new user to localStorage and navigate to the
+        // dashboard after a successful registration.
+        if (res && res.ok && res.data) {
+          window.LuxApp.setCurrentUser(res.data);
+          window.location.href = 'myassets.html';
+          return;
+        }
+        // If we reach here something went wrong.
+        showError(res && res.reason ? res.reason : 'Registration failed. Try again.');
+        if (btn) btn.disabled = false;
         generateCaptcha();
       } catch (err) {
         if (btn) btn.disabled = false;

@@ -44,4 +44,37 @@
     window.addEventListener('load', () => {
       initPhoneInputLogin();
       setupPasswordToggles();
+  // Attach a submit handler to perform Supabase‑backed login.
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      // Build a full E.164 phone string from the intl‑tel‑input plugin if available.
+      const phoneField = document.getElementById('phone');
+      let phoneValue = '';
+      if (window.intlTelInput && phoneField && phoneField._intlTelInput) {
+        try {
+          phoneValue = phoneField._intlTelInput.getNumber();
+        } catch (_) {
+          phoneValue = phoneField.value.trim();
+        }
+      } else {
+        phoneValue = phoneField ? phoneField.value.trim() : '';
+      }
+      const passwordValue = document.getElementById('password')?.value?.trim() || '';
+      if (!phoneValue || !passwordValue) {
+        alert('Please enter your phone and password');
+        return;
+      }
+      try {
+        const user = await window.LuxApp.loginUser({ phone: phoneValue, password: passwordValue });
+        window.LuxApp.setCurrentUser(user);
+        // Redirect to the dashboard upon successful login
+        window.location.href = 'myassets.html';
+      } catch (err) {
+        console.error(err);
+        alert(err.message || 'Login failed');
+      }
+    });
+  }
     });
