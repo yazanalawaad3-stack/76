@@ -13,12 +13,12 @@
 (function () {
   'use strict';
 
-  // TODO: Replace the following two constants with your Supabase
-  // project URL and anon/public API key.  You can find them in
-  // your project settings under “API”.  Without valid values the
-  // functions below will throw errors when called.
-  const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  // Supabase configuration for your project.  These values are set
+  // temporarily for development.  When deploying your own instance
+  // replace them with your own API credentials.  See the project
+  // dashboard under "Settings → API" for the correct values.
+  const SUPABASE_URL = 'https://lcwppbfjzhyyskdbzahp.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxjd3BwYmZqemh5eXNrZGJ6YWhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5ODYwMDksImV4cCI6MjA4NzU2MjAwOX0.PWyYHrvyqP2jeCKsumbBwiyMfGVNXYpWnOQFwlmpp9Q';
 
   // Initialise the Supabase client.  This requires that the
   // @supabase/supabase-js library is loaded on the page via a

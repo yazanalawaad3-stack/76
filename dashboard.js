@@ -1,41 +1,66 @@
-// dashboard.js
-// Fetches user profile and activity statistics from Supabase once the
-// dashboard page loads and updates the relevant elements.  This
-// script relies on the LuxApp helpers defined in supabaseClient.js.
-
+/* dashboard.js
+   Fetches the current user’s account details and updates the
+   dashboard values on myassets.html.  It uses the LuxApp helper
+   defined in supabaseClient.js to retrieve the user and income
+   statistics.  The DOM elements are updated only if they exist,
+   preserving the original layout and styling.
+*/
 (function () {
   'use strict';
-  async function updateDashboard() {
+
+  /**
+   * Format a number as a USDT amount.  If the input is null or not a
+   * number the function returns "$0.00".
+   *
+   * @param {number|string|null} v
+   * @returns {string}
+   */
+  function toMoney(v) {
+    const num = Number(v);
+    return '$' + (Number.isFinite(num) ? num.toFixed(2) : '0.00');
+  }
+
+  async function load() {
+    if (!window.LuxApp || !window.LuxApp.fetchCurrentUserData) return;
     try {
       const data = await window.LuxApp.fetchCurrentUserData();
-      if (!data) return;
-      const { user, todayIncome, totalIncome, teamIncome, teamTotalIncome } = data;
-      // Update ID
-      const uidEl = document.getElementById('userIdValue');
-      if (uidEl && user.user_code) uidEl.textContent = String(user.user_code);
-      // Update balance (real_balance displayed as USDT)
+      if (!data || !data.user) return;
+      const user = data.user;
+      // Update user ID (8‑digit code)
+      const userIdEl = document.getElementById('userIdValue');
+      if (userIdEl) {
+        userIdEl.textContent = String(user.user_code || '');
+      }
+      // Demo/real balance
       const balEl = document.getElementById('demoBalance');
       if (balEl) {
-        const v = Number(user.real_balance || 0);
-        balEl.textContent = v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        balEl.textContent = toMoney(user.real_balance);
       }
-      // Update activity values
-      const todayEl = document.getElementById('todayIncome');
-      if (todayEl) todayEl.textContent = '$' + Number(todayIncome || 0).toFixed(2);
+      // Income statistics
+      const tiEl = document.getElementById('todayIncome');
+      if (tiEl) {
+        tiEl.textContent = toMoney(data.todayIncome);
+      }
       const totalEl = document.getElementById('totalIncome');
-      if (totalEl) totalEl.textContent = '$' + Number(totalIncome || 0).toFixed(2);
+      if (totalEl) {
+        totalEl.textContent = toMoney(data.totalIncome);
+      }
       const teamTodayEl = document.getElementById('teamIncome');
-      if (teamTodayEl) teamTodayEl.textContent = '$' + Number(teamIncome || 0).toFixed(2);
+      if (teamTodayEl) {
+        teamTodayEl.textContent = toMoney(data.teamIncome);
+      }
       const teamTotalEl = document.getElementById('teamTotalIncome');
-      if (teamTotalEl) teamTotalEl.textContent = '$' + Number(teamTotalIncome || 0).toFixed(2);
+      if (teamTotalEl) {
+        teamTotalEl.textContent = toMoney(data.teamTotalIncome);
+      }
     } catch (err) {
       console.error(err);
     }
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', updateDashboard);
+    document.addEventListener('DOMContentLoaded', load);
   } else {
-    updateDashboard();
+    load();
   }
 })();

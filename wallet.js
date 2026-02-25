@@ -5,39 +5,45 @@
 (function () {
   "use strict";
 
-  const KEYS = {
-    USER_ID: "user_id_demo",
-    WALLET_ADDR: "wallet_usdt_bep20_address_demo"
-  };
-
-  const qs = (s, el = document) => el.querySelector(s);
-
-  const toastEl = qs("#luxToast");
-  const toastText = qs("#toastText");
+  // Select DOM elements once
+  const qs = (sel, el = document) => el.querySelector(sel);
+  const toastEl = qs('#luxToast');
+  const toastText = qs('#toastText');
   let toastTimer = null;
 
+  /**
+   * Show a small temporary toast message.
+   *
+   * @param {string} msg
+   */
   function toast(msg) {
     if (!toastEl || !toastText) return;
-    toastText.textContent = msg;
-    toastEl.classList.add("show");
+    toastText.textContent = String(msg || '');
+    toastEl.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1400);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1400);
   }
 
+  /**
+   * Copy text to clipboard with fallback for insecure contexts.
+   *
+   * @param {string} text
+   * @returns {Promise<boolean>}
+   */
   async function safeCopy(text) {
     try {
       await navigator.clipboard.writeText(String(text));
       return true;
     } catch (_) {
       try {
-        const ta = document.createElement("textarea");
+        const ta = document.createElement('textarea');
         ta.value = String(text);
-        ta.setAttribute("readonly", "");
-        ta.style.position = "fixed";
-        ta.style.top = "-1000px";
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.top = '-1000px';
         document.body.appendChild(ta);
         ta.select();
-        const ok = document.execCommand("copy");
+        const ok = document.execCommand('copy');
         document.body.removeChild(ta);
         return !!ok;
       } catch (_) {
@@ -46,158 +52,125 @@
     }
   }
 
-  function gen8() {
-    const min = 10000000;
-    const max = 99999999;
-    return String(Math.floor(min + Math.random() * (max - min + 1)));
-  }
+  // DOM refs
+  const addrEl = qs('#walletAddressText');
+  const canvas = qs('#qrCanvas');
+  const qrImg = qs('#qrImg');
+  const copyBtn = qs('#copyAddressBtn');
+  const refreshBtn = qs('#walletRefreshBtn');
 
-  function ensureUserId() {
-    let id = localStorage.getItem(KEYS.USER_ID);
-    if (!id || !/^\d{8}$/.test(id)) {
-      id = gen8();
-      localStorage.setItem(KEYS.USER_ID, id);
-    }
-    return id;
-  }
-
-  function bytesToHex(bytes) {
-    const hex = [];
-    for (let i = 0; i < bytes.length; i++) {
-      hex.push(bytes[i].toString(16).padStart(2, "0"));
-    }
-    return hex.join("");
-  }
-
-  function genDemoEvmAddress() {
-    const b = new Uint8Array(20);
-    if (window.crypto && window.crypto.getRandomValues) {
-      window.crypto.getRandomValues(b);
-    } else {
-      for (let i = 0; i < b.length; i++) b[i] = Math.floor(Math.random() * 256);
-    }
-    return "0x" + bytesToHex(b);
-  }
-
-  function ensureWalletAddress() {
-    ensureUserId();
-
-    let addr = localStorage.getItem(KEYS.WALLET_ADDR);
-    if (addr && /^0x[a-fA-F0-9]{40}$/.test(addr)) return addr;
-
-    addr = genDemoEvmAddress();
-    localStorage.setItem(KEYS.WALLET_ADDR, addr);
-    return addr;
-  }
-
-  const addrEl = qs("#walletAddressText");
-  const canvas = qs("#qrCanvas");
-  const qrImg = qs("#qrImg");
-  const copyBtn = qs("#copyAddressBtn");
-  const refreshBtn = qs("#walletRefreshBtn");
-
+  /**
+   * Toggle loading state for the refresh button
+   *
+   * @param {boolean} isLoading
+   */
   function setLoading(isLoading) {
     if (!refreshBtn) return;
-    refreshBtn.classList.toggle("is-loading", !!isLoading);
+    refreshBtn.classList.toggle('is-loading', !!isLoading);
     refreshBtn.disabled = !!isLoading;
   }
 
+  /**
+   * Flash the address pill to indicate it changed
+   */
   function flashAddress() {
-    const pill = qs(".lux-address-pill");
+    const pill = qs('.lux-address-pill');
     if (!pill) return;
-    pill.classList.add("is-flash");
-    setTimeout(() => pill.classList.remove("is-flash"), 450);
+    pill.classList.add('is-flash');
+    setTimeout(() => pill.classList.remove('is-flash'), 450);
   }
 
+  /**
+   * Render a QR code for the current address using qr.js if
+   * available; otherwise fallback to a remote QR service.
+   */
   function renderQR() {
-    const address = String(addrEl?.textContent || "").trim();
+    const address = String(addrEl?.textContent || '').trim();
     if (!address) return;
-
     const canCanvas = !!(window.QRCode && window.QRCode.toCanvas && canvas);
-
     if (canCanvas) {
-      if (qrImg) qrImg.style.display = "none";
-      if (canvas) canvas.style.display = "block";
+      if (qrImg) qrImg.style.display = 'none';
+      if (canvas) canvas.style.display = 'block';
       window.QRCode.toCanvas(canvas, address, { width: 220, margin: 1 }, (err) => {
         if (err) {
           if (qrImg) {
-            canvas.style.display = "none";
-            qrImg.style.display = "block";
-            qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(address);
+            canvas.style.display = 'none';
+            qrImg.style.display = 'block';
+            qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(address);
           }
         }
       });
-      return;
-    }
-
-    if (qrImg) {
-      if (canvas) canvas.style.display = "none";
-      qrImg.style.display = "block";
-      qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(address);
+    } else if (qrImg) {
+      if (canvas) canvas.style.display = 'none';
+      qrImg.style.display = 'block';
+      qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(address);
     }
   }
 
+  /**
+   * Update the address display and regenerate its QR
+   *
+   * @param {string} newAddress
+   */
   function setAddress(newAddress) {
     if (!addrEl) return;
-    addrEl.textContent = String(newAddress || "").trim();
+    addrEl.textContent = String(newAddress || '').trim();
     renderQR();
   }
 
-  async function fetchAddressFromFutureAPI() {
-    const url = "./api/deposit-address.json?currency=USDT&network=BEP20&_=" + Date.now();
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data?.address ? String(data.address) : null;
-  }
-
-  function initAddress() {
-    const addr = ensureWalletAddress();
-    setAddress(addr);
-  }
-
-  if (copyBtn) {
-    copyBtn.addEventListener("click", async () => {
-      const address = String(addrEl?.textContent || "").trim();
-      if (!address) return toast("No address");
-      const ok = await safeCopy(address);
-      toast(ok ? "Address copied" : "Copy failed");
-    });
-  }
-
-  if (refreshBtn) {
-    refreshBtn.addEventListener("click", async () => {
-      setLoading(true);
-      try {
-        let address = null;
-        try {
-          address = await fetchAddressFromFutureAPI();
-        } catch (_) {}
-
-        if (address && /^0x[a-fA-F0-9]{40}$/.test(address)) {
-          localStorage.setItem(KEYS.WALLET_ADDR, address);
-          setAddress(address);
-          flashAddress();
-          toast("Address updated");
-        } else {
-          initAddress();
-          flashAddress();
-          toast("Refreshed");
-        }
-      } finally {
-        setTimeout(() => setLoading(false), 450);
+  /**
+   * Fetch the deposit address for the current user from Supabase via
+   * LuxApp.  Defaults to the BEP20 network.  On success the UI is
+   * updated; on error a toast is shown and the old address remains.
+   */
+  async function loadAddress() {
+    if (!window.LuxApp || !window.LuxApp.getDepositAddress) return;
+    setLoading(true);
+    try {
+      const addr = await window.LuxApp.getDepositAddress('BEP20');
+      if (addr && /^0x[a-fA-F0-9]{40}$/.test(addr)) {
+        setAddress(addr);
+        flashAddress();
+      } else {
+        toast('Invalid address');
       }
-    });
+    } catch (err) {
+      console.error(err);
+      toast('Failed to load address');
+    } finally {
+      setTimeout(() => setLoading(false), 400);
+    }
   }
 
+  // Copy and refresh event handlers
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      const address = String(addrEl?.textContent || '').trim();
+      if (!address) return toast('No address');
+      const ok = await safeCopy(address);
+      toast(ok ? 'Address copied' : 'Copy failed');
+    });
+  }
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      loadAddress();
+    });
+  }
   [canvas, qrImg].filter(Boolean).forEach((el) => {
-    el.addEventListener("click", async () => {
-      const address = String(addrEl?.textContent || "").trim();
+    el.addEventListener('click', async () => {
+      const address = String(addrEl?.textContent || '').trim();
       if (!address) return;
       const ok = await safeCopy(address);
-      toast(ok ? "Copied" : "Copy failed");
+      toast(ok ? 'Copied' : 'Copy failed');
     });
   });
+
+  // Auto load the address on page ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadAddress);
+  } else {
+    loadAddress();
+  }
 
   window.addEventListener("load", () => {
     initAddress();
