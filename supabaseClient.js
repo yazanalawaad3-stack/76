@@ -116,10 +116,20 @@
     // Hash the password client‑side.  In a real application you
     // should never store plain passwords in the database.
     const passwordHash = await hashPassword(password);
-    // Request an 8‑digit user_code from the database via RPC.
-    const { data: codeData, error: codeErr } = await supabase.rpc('generate_random_code');
-    if (codeErr) throw codeErr;
-    const userCode = codeData;
+    // Request an 8‑digit user_code from the database via RPC.  If the RPC
+    // function is not present, fall back to generating a random code on
+    // the client.  This fallback avoids registration failures when the
+    // generate_random_code function has not been created.  Random codes
+    // are 8‑digit strings in the range [10000000, 99999999].
+    let userCode;
+    try {
+      const { data: codeData, error: codeErr } = await supabase.rpc('generate_random_code');
+      if (codeErr) throw codeErr;
+      userCode = codeData;
+    } catch (err) {
+      // fallback: generate random 8‑digit code
+      userCode = String(Math.floor(10000000 + Math.random() * 90000000));
+    }
     // Create a unique invite code.  We attempt to insert the user
     // repeatedly until Supabase accepts the code.  This loop avoids
     // collisions on the invite_code unique constraint.
