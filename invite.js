@@ -59,10 +59,13 @@
 
   function ensureInviteCode() {
     let code = localStorage.getItem(KEYS.INVITE_CODE);
+
+    // If old value exists but is not 7 uppercase letters, replace it (fixes old numeric codes).
     if (!code || !/^[A-Z]{7}$/.test(code)) {
       code = gen7Upper();
       localStorage.setItem(KEYS.INVITE_CODE, code);
     }
+
     return code;
   }
 
