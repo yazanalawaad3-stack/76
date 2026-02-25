@@ -6,7 +6,7 @@
   "use strict";
 
   const KEYS = {
-    USER_ID: "user_id_demo"
+    INVITE_CODE: "invite_code_demo"
   };
 
   const qs = (s, el = document) => el.querySelector(s);
@@ -46,23 +46,28 @@
     }
   }
 
-  function gen8() {
-    const min = 10000000;
-    const max = 99999999;
-    return String(Math.floor(min + Math.random() * (max - min + 1)));
+  function randomLetter() {
+    const a = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    return a[Math.floor(Math.random() * a.length)];
   }
 
-  function ensureUserId() {
-    let id = localStorage.getItem(KEYS.USER_ID);
-    if (!id || !/^\d{8}$/.test(id)) {
-      id = gen8();
-      localStorage.setItem(KEYS.USER_ID, id);
+  function gen7Upper() {
+    let out = "";
+    for (let i = 0; i < 7; i++) out += randomLetter();
+    return out;
+  }
+
+  function ensureInviteCode() {
+    let code = localStorage.getItem(KEYS.INVITE_CODE);
+    if (!code || !/^[A-Z]{7}$/.test(code)) {
+      code = gen7Upper();
+      localStorage.setItem(KEYS.INVITE_CODE, code);
     }
-    return id;
+    return code;
   }
 
   function buildInvite() {
-    const code = ensureUserId();
+    const code = ensureInviteCode();
     const origin = window.location.origin || "";
     const base = origin || "https://example.com";
 
@@ -123,7 +128,7 @@
 
     window.addEventListener("storage", (e) => {
       if (!e) return;
-      if (e.key === KEYS.USER_ID) buildInvite();
+      if (e.key === KEYS.INVITE_CODE) buildInvite();
     });
   }
 
